@@ -1,15 +1,22 @@
 import SwiftUI
+import Combine
+import WidgetKit
 
 struct NoteDetailView: View {
     let note: VoiceNote
     let onDelete: () -> Void
 
     @StateObject private var playerService = AudioPlayerService()
+    @StateObject private var aiService = AISummaryService()
     @State private var showDeleteConfirmation = false
     @State private var showSpeedPicker = false
     @State private var showMoveSheet = false
+    @State private var showShareSheet = false
     @State private var editedNote: VoiceNote
+    @State private var exportError: String?
     @Environment(\.dismiss) private var dismiss
+
+    private let exportService = ExportService()
 
     init(note: VoiceNote, onDelete: @escaping () -> Void) {
         self.note = note
@@ -31,12 +38,27 @@ struct NoteDetailView: View {
                         onSpeedTap: { showSpeedPicker = true }
                     )
 
+                    // AI Summary card
+                    aiSummaryCard
+
                     // Transcription
                     GlassCard {
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Transcription")
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundColor(DesignTokens.textSecondary)
+                            HStack {
+                                Text("Transcription")
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundColor(DesignTokens.textSecondary)
+
+                                Spacer()
+
+                                Button {
+                                    UIPasteboard.general.string = editedNote.transcription
+                                } label: {
+                                    Image(systemName: "doc.on.doc")
+                                        .font(.system(size: 13))
+                                        .foregroundColor(DesignTokens.textSecondary)
+                                }
+                            }
 
                             Text(editedNote.transcription.isEmpty ? "No transcription available" : editedNote.transcription)
                                 .font(.system(size: 17, weight: .regular))
@@ -46,18 +68,22 @@ struct NoteDetailView: View {
                         .padding(16)
                     }
 
+                    // Export error banner
+                    if let error = exportError {
+                        InlineErrorBanner(
+                            title: "Export Failed",
+                            message: error,
+                            icon: "exclamationmark.triangle",
+                            onDismiss: { exportError = nil }
+                        )
+                    }
+
                     // Actions
                     HStack(spacing: 12) {
                         ActionButton(
-                            icon: "doc.on.doc",
-                            label: "Copy",
-                            action: copyText
-                        )
-
-                        ActionButton(
                             icon: "square.and.arrow.up",
                             label: "Share",
-                            action: shareText
+                            action: { showShareSheet = true }
                         )
 
                         ActionButton(
@@ -121,24 +147,192 @@ struct NoteDetailView: View {
                 }
             )
         }
+        .sheet(isPresented: $showShareSheet) {
+            ShareSheetView(
+                note: editedNote,
+                exportService: exportService,
+                onError: { error in
+                    exportError = error
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        exportError = nil
+                    }
+                }
+            )
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+        }
         .onDisappear {
             playerService.stop()
         }
     }
 
-    private func copyText() {
-        UIPasteboard.general.string = editedNote.transcription
+    // MARK: - AI Summary Card
+
+    @ViewBuilder
+    private var aiSummaryCard: some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 14) {
+                // Header
+                HStack {
+                    Image(systemName: "brain.head.profile")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(DesignTokens.accent)
+
+                    Text("AI Summary")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(DesignTokens.textSecondary)
+
+                    Spacer()
+
+                    if editedNote.hasAISummary {
+                        Text("Generated")
+                            .font(.system(size: 11))
+                            .foregroundColor(DesignTokens.accent)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(
+                                Capsule()
+                                    .fill(DesignTokens.accent.opacity(0.15))
+                            )
+                    } else if aiService.isAnalyzing {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                            .tint(DesignTokens.accent)
+                    }
+                }
+
+                if editedNote.hasAISummary {
+                    // Summary text
+                    Text(editedNote.aiSummary!)
+                        .font(.system(size: 15))
+                        .foregroundColor(DesignTokens.textPrimary)
+                        .multilineTextAlignment(.leading)
+                        .lineSpacing(4)
+
+                    // Keywords
+                    if !editedNote.aiKeywords.isEmpty {
+                        Divider()
+                            .background(DesignTokens.textSecondary.opacity(0.2))
+
+                        HStack(spacing: 6) {
+                            Text("Keywords")
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundColor(DesignTokens.textSecondary)
+
+                            FlowLayout(spacing: 6) {
+                                ForEach(editedNote.aiKeywords, id: \.self) { keyword in
+                                    Text(keyword)
+                                        .font(.system(size: 11, weight: .medium))
+                                        .foregroundColor(DesignTokens.accent)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(
+                                            Capsule()
+                                                .fill(DesignTokens.accent.opacity(0.12))
+                                        )
+                                }
+                            }
+                        }
+                    }
+
+                    // Action items
+                    if !editedNote.actionItems.isEmpty {
+                        Divider()
+                            .background(DesignTokens.textSecondary.opacity(0.2))
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Action Items")
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundColor(DesignTokens.textSecondary)
+
+                            ForEach(Array(editedNote.actionItems.enumerated()), id: \.offset) { index, item in
+                                HStack(alignment: .top, spacing: 8) {
+                                    Image(systemName: "circle")
+                                        .font(.system(size: 6))
+                                        .foregroundColor(DesignTokens.accent)
+                                        .padding(.top, 5)
+
+                                    Text("\(index + 1). \(item)")
+                                        .font(.system(size: 13))
+                                        .foregroundColor(DesignTokens.textPrimary)
+                                        .multilineTextAlignment(.leading)
+                                }
+                            }
+                        }
+                    }
+
+                    Button {
+                        generateAISummary()
+                    } label: {
+                        Text("Regenerate")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(DesignTokens.textSecondary)
+                    }
+                    .padding(.top, 4)
+
+                } else {
+                    // Empty state
+                    Text("Generate an AI summary to get a quick overview of this transcription.")
+                        .font(.system(size: 14))
+                        .foregroundColor(DesignTokens.textSecondary)
+                        .multilineTextAlignment(.leading)
+
+                    Button {
+                        generateAISummary()
+                    } label: {
+                        HStack(spacing: 6) {
+                            if aiService.isAnalyzing {
+                                ProgressView()
+                                    .scaleEffect(0.7)
+                                    .tint(DesignTokens.background)
+                            } else {
+                                Image(systemName: "sparkles")
+                                    .font(.system(size: 13))
+                            }
+                            Text("Generate Summary")
+                                .font(.system(size: 14, weight: .semibold))
+                        }
+                        .foregroundColor(DesignTokens.background)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 40)
+                        .background(DesignTokens.accent)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                    .disabled(aiService.isAnalyzing || editedNote.transcription.isEmpty)
+                    .opacity(editedNote.transcription.isEmpty ? 0.5 : 1)
+                }
+
+                if aiService.errorMessage != nil {
+                    InlineErrorBanner(
+                        title: "AI Unavailable",
+                        message: aiService.errorMessage ?? "Could not generate summary",
+                        icon: "exclamationmark.triangle",
+                        onDismiss: { aiService.errorMessage = nil }
+                    )
+                }
+            }
+            .padding(16)
+        }
     }
 
-    private func shareText() {
-        let activityVC = UIActivityViewController(
-            activityItems: [editedNote.transcription],
-            applicationActivities: nil
-        )
+    // MARK: - Actions
 
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let rootVC = windowScene.windows.first?.rootViewController {
-            rootVC.present(activityVC, animated: true)
+    private func generateAISummary() {
+        guard !editedNote.transcription.isEmpty else { return }
+
+        Task {
+            let result = await aiService.analyze(transcription: editedNote.transcription)
+            var updated = editedNote
+            updated.aiSummary = result.summary
+            updated.aiKeywords = result.keywords
+            updated.actionItems = result.actionItems
+
+            do {
+                try DatabaseService.shared.updateNote(updated)
+                editedNote = updated
+            } catch {
+                print("Failed to save AI summary: \(error)")
+            }
         }
     }
 
@@ -163,6 +357,393 @@ struct NoteDetailView: View {
     }
 }
 
+// MARK: - Share Sheet
+
+struct ShareSheetView: View {
+    let note: VoiceNote
+    let exportService: ExportService
+    let onError: (String) -> Void
+
+    @State private var showExportAllSheet = false
+    @State private var allNotes: [VoiceNote] = []
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(spacing: 0) {
+            RoundedRectangle(cornerRadius: 2)
+                .fill(DesignTokens.textSecondary.opacity(0.4))
+                .frame(width: 36, height: 4)
+                .padding(.top, 8)
+
+            VStack(spacing: 20) {
+                Text("Share")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(DesignTokens.textPrimary)
+                    .padding(.top, 16)
+
+                HStack(spacing: 16) {
+                    ShareOptionButton(
+                        icon: "doc.richtext",
+                        label: "PDF",
+                        sublabel: "Formatted export",
+                        color: .red
+                    ) {
+                        sharePDF()
+                    }
+
+                    ShareOptionButton(
+                        icon: "doc.plaintext",
+                        label: "Text",
+                        sublabel: "Plain text",
+                        color: DesignTokens.accent
+                    ) {
+                        shareText()
+                    }
+
+                    ShareOptionButton(
+                        icon: "square.and.arrow.up.on.square",
+                        label: "Export All",
+                        sublabel: "ZIP + JSON",
+                        color: .blue
+                    ) {
+                        exportAllNotes()
+                    }
+                }
+
+                Text("All exports are generated locally. No data leaves your device.")
+                    .font(.system(size: 12))
+                    .foregroundColor(DesignTokens.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
+
+                Button {
+                    dismiss()
+                } label: {
+                    Text("Cancel")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(DesignTokens.textSecondary)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(DesignTokens.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 28)
+            }
+        }
+        .background(DesignTokens.background)
+        .sheet(isPresented: $showExportAllSheet) {
+            ExportAllNotesSheet(notes: allNotes, exportService: exportService)
+        }
+    }
+
+    private func sharePDF() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootVC = windowScene.windows.first?.rootViewController else {
+            onError("Share sheet unavailable")
+            return
+        }
+        exportService.sharePDF(for: note, from: rootVC)
+        dismiss()
+    }
+
+    private func shareText() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootVC = windowScene.windows.first?.rootViewController else {
+            onError("Share sheet unavailable")
+            return
+        }
+        exportService.sharePlainText(for: note, from: rootVC)
+        dismiss()
+    }
+
+    private func exportAllNotes() {
+        Task {
+            do {
+                allNotes = try DatabaseService.shared.fetchAllNotes()
+                if allNotes.isEmpty {
+                    onError("No notes to export")
+                    return
+                }
+                showExportAllSheet = true
+            } catch {
+                onError("Failed to load notes")
+            }
+        }
+    }
+}
+
+// MARK: - Export All Notes Sheet
+
+struct ExportAllNotesSheet: View {
+    let notes: [VoiceNote]
+    let exportService: ExportService
+
+    @State private var isExporting = false
+    @State private var exportURL: URL?
+    @State private var showShare = false
+    @State private var error: String?
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(spacing: 0) {
+            RoundedRectangle(cornerRadius: 2)
+                .fill(DesignTokens.textSecondary.opacity(0.4))
+                .frame(width: 36, height: 4)
+                .padding(.top, 8)
+
+            VStack(spacing: 20) {
+                Text("Export All Notes")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(DesignTokens.textPrimary)
+                    .padding(.top, 16)
+
+                HStack(spacing: 24) {
+                    VStack(spacing: 4) {
+                        Text("\(notes.count)")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(DesignTokens.accent)
+                        Text("Notes")
+                            .font(.system(size: 12))
+                            .foregroundColor(DesignTokens.textSecondary)
+                    }
+
+                    VStack(spacing: 4) {
+                        Text(totalDuration)
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(DesignTokens.textPrimary)
+                        Text("Total")
+                            .font(.system(size: 12))
+                            .foregroundColor(DesignTokens.textSecondary)
+                    }
+                }
+
+                if let error = error {
+                    InlineErrorBanner(
+                        title: "Export Failed",
+                        message: error,
+                        icon: "exclamationmark.triangle",
+                        onDismiss: { self.error = nil }
+                    )
+                }
+
+                if isExporting {
+                    ProgressView()
+                        .tint(DesignTokens.accent)
+                        .padding(.vertical, 12)
+                    Text("Creating ZIP archive…")
+                        .font(.system(size: 14))
+                        .foregroundColor(DesignTokens.textSecondary)
+                } else if showShare, let url = exportURL {
+                    Text("Export ready!")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(DesignTokens.accent)
+                        .padding(.vertical, 8)
+
+                    ShareLink(item: url) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "square.and.arrow.up")
+                            Text("Share ZIP")
+                        }
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(DesignTokens.background)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(DesignTokens.accent)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .padding(.horizontal, 20)
+                } else {
+                    Button {
+                        createExport()
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "square.and.arrow.up.on.square")
+                            Text("Create ZIP Export")
+                        }
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(DesignTokens.background)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(DesignTokens.accent)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                }
+
+                Button {
+                    dismiss()
+                } label: {
+                    Text("Cancel")
+                        .font(.system(size: 14))
+                        .foregroundColor(DesignTokens.textSecondary)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 28)
+        }
+        .background(DesignTokens.background)
+    }
+
+    private var totalDuration: String {
+        let total = notes.reduce(0) { $0 + $1.duration }
+        let minutes = Int(total) / 60
+        return "\(minutes)m"
+    }
+
+    private func createExport() {
+        isExporting = true
+        error = nil
+
+        Task {
+            do {
+                let url = try exportService.createZIPExport(for: notes)
+                await MainActor.run {
+                    exportURL = url
+                    showShare = true
+                    isExporting = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.error = error.localizedDescription
+                    isExporting = false
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Share Option Button
+
+struct ShareOptionButton: View {
+    let icon: String
+    let label: String
+    let sublabel: String
+    let color: Color
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(color.opacity(0.15))
+                        .frame(width: 56, height: 56)
+
+                    Image(systemName: icon)
+                        .font(.system(size: 22))
+                        .foregroundColor(color)
+                }
+
+                VStack(spacing: 2) {
+                    Text(label)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(DesignTokens.textPrimary)
+
+                    Text(sublabel)
+                        .font(.system(size: 11))
+                        .foregroundColor(DesignTokens.textSecondary)
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Inline Error Banner
+
+struct InlineErrorBanner: View {
+    let title: String
+    let message: String
+    let icon: String
+    let onDismiss: (() -> Void)?
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 16))
+                .foregroundColor(.orange)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(DesignTokens.textPrimary)
+
+                Text(message)
+                    .font(.system(size: 12))
+                    .foregroundColor(DesignTokens.textSecondary)
+            }
+
+            Spacer()
+
+            if let onDismiss = onDismiss {
+                Button {
+                    onDismiss()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 12))
+                        .foregroundColor(DesignTokens.textSecondary)
+                }
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: DesignTokens.radiusMd)
+                .fill(Color.orange.opacity(0.1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignTokens.radiusMd)
+                        .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                )
+        )
+    }
+}
+
+// MARK: - Flow Layout (for keywords)
+
+struct FlowLayout: Layout {
+    var spacing: CGFloat = 6
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let result = computeLayout(proposal: proposal, subviews: subviews)
+        return result.size
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let result = computeLayout(proposal: proposal, subviews: subviews)
+        for (index, subview) in subviews.enumerated() {
+            subview.place(at: CGPoint(x: bounds.minX + result.positions[index].x,
+                                       y: bounds.minY + result.positions[index].y),
+                          proposal: .unspecified)
+        }
+    }
+
+    private func computeLayout(proposal: ProposedViewSize, subviews: Subviews) -> (size: CGSize, positions: [CGPoint]) {
+        let maxWidth = proposal.width ?? .infinity
+        var positions: [CGPoint] = []
+        var currentX: CGFloat = 0
+        var currentY: CGFloat = 0
+        var lineHeight: CGFloat = 0
+        var totalHeight: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+
+            if currentX + size.width > maxWidth && currentX > 0 {
+                currentX = 0
+                currentY += lineHeight + spacing
+                lineHeight = 0
+            }
+
+            positions.append(CGPoint(x: currentX, y: currentY))
+            currentX += size.width + spacing
+            lineHeight = max(lineHeight, size.height)
+            totalHeight = max(totalHeight, currentY + lineHeight)
+        }
+
+        return (CGSize(width: maxWidth, height: totalHeight), positions)
+    }
+}
+
 // MARK: - Enhanced Audio Player Card
 
 struct AudioPlayerCard: View {
@@ -178,12 +759,10 @@ struct AudioPlayerCard: View {
             VStack(spacing: 20) {
                 // Playback controls row
                 HStack(spacing: 24) {
-                    // Skip backward
                     SkipButton(direction: .backward) {
                         playerService.skipBackward()
                     }
 
-                    // Play/Pause
                     Button {
                         togglePlayback()
                     } label: {
@@ -198,7 +777,6 @@ struct AudioPlayerCard: View {
                         }
                     }
 
-                    // Skip forward
                     SkipButton(direction: .forward) {
                         playerService.skipForward()
                     }
@@ -208,12 +786,10 @@ struct AudioPlayerCard: View {
                 VStack(spacing: 4) {
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
-                            // Track background
                             RoundedRectangle(cornerRadius: 3)
                                 .fill(DesignTokens.textSecondary.opacity(0.3))
                                 .frame(height: 6)
 
-                            // Progress fill
                             RoundedRectangle(cornerRadius: 3)
                                 .fill(
                                     LinearGradient(
@@ -224,7 +800,6 @@ struct AudioPlayerCard: View {
                                 )
                                 .frame(width: max(0, progressWidth(for: geometry.size.width)), height: 6)
 
-                            // Thumb
                             Circle()
                                 .fill(DesignTokens.accent)
                                 .frame(width: 14, height: 14)
@@ -262,7 +837,6 @@ struct AudioPlayerCard: View {
                     }
                 }
 
-                // Speed selector
                 HStack {
                     Spacer()
 
@@ -296,9 +870,7 @@ struct AudioPlayerCard: View {
 
     private var speedLabel: String {
         let speed = playerService.playbackRate
-        if speed == 1.0 {
-            return "1×"
-        }
+        if speed == 1.0 { return "1×" }
         return String(format: "%.1f×", speed)
     }
 
@@ -368,7 +940,6 @@ struct SpeedPickerSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Handle
             RoundedRectangle(cornerRadius: 2)
                 .fill(DesignTokens.textSecondary.opacity(0.4))
                 .frame(width: 36, height: 4)
@@ -408,7 +979,7 @@ struct SpeedOptionButton: View {
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 8) {
-                Text(speedLabel)
+                Text(speed == 1.0 ? "1×" : String(format: "%.1f×", speed))
                     .font(.system(size: 20, weight: isSelected ? .bold : .semibold))
                     .foregroundColor(isSelected ? DesignTokens.background : DesignTokens.textPrimary)
             }
@@ -421,16 +992,9 @@ struct SpeedOptionButton: View {
         }
         .buttonStyle(.plain)
     }
-
-    private var speedLabel: String {
-        if speed == 1.0 {
-            return "1×"
-        }
-        return String(format: "%.1f×", speed)
-    }
 }
 
-// MARK: - Action Button (already defined above, but keeping for reference)
+// MARK: - Action Button
 
 struct ActionButton: View {
     let icon: String

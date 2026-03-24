@@ -17,6 +17,9 @@ final class DatabaseService: @unchecked Sendable {
     private let createdAt = SQLite.Expression<Double>("created_at")
     private let folderId = SQLite.Expression<String?>("folder_id")
     private let isFavorite = SQLite.Expression<Bool>("is_favorite")
+    private let aiSummary = SQLite.Expression<String?>("ai_summary")
+    private let aiKeywords = SQLite.Expression<String>("ai_keywords")
+    private let actionItems = SQLite.Expression<String>("action_items")
 
     // Folders columns
     private let folderName = SQLite.Expression<String>("name")
@@ -41,7 +44,7 @@ final class DatabaseService: @unchecked Sendable {
                 t.column(folderCreatedAt)
             })
 
-            // Create notes table (with folderId and isFavorite)
+            // Create notes table (with AI features)
             try db?.run(notes.create(ifNotExists: true) { t in
                 t.column(id, primaryKey: true)
                 t.column(title)
@@ -51,7 +54,21 @@ final class DatabaseService: @unchecked Sendable {
                 t.column(createdAt)
                 t.column(folderId)
                 t.column(isFavorite)
+                t.column(aiSummary)
+                t.column(aiKeywords)
+                t.column(actionItems)
             })
+
+            // Migrate existing columns if needed (add AI columns if missing)
+            do {
+                try db?.run(notes.addColumn(aiSummary, defaultValue: nil as String?))
+            } catch { /* column may already exist */ }
+            do {
+                try db?.run(notes.addColumn(aiKeywords, defaultValue: ""))
+            } catch { /* column may already exist */ }
+            do {
+                try db?.run(notes.addColumn(actionItems, defaultValue: ""))
+            } catch { /* column may already exist */ }
 
             // Insert default folders if none exist
             let count = try db?.scalar(folders.count) ?? 0
@@ -118,6 +135,27 @@ final class DatabaseService: @unchecked Sendable {
 
     // MARK: - Notes
 
+    private func parseVoiceNote(row: Row, documentsPath: URL) -> VoiceNote {
+        let keywordsStr = row[aiKeywords]
+        let actionItemsStr = row[actionItems]
+        let keywords = keywordsStr.isEmpty ? [] : keywordsStr.components(separatedBy: "|||")
+        let actions = actionItemsStr.isEmpty ? [] : actionItemsStr.components(separatedBy: "|||")
+
+        return VoiceNote(
+            id: UUID(uuidString: row[id]) ?? UUID(),
+            title: row[title],
+            transcription: row[transcription],
+            audioFileURL: documentsPath.appendingPathComponent(row[audioFileName]),
+            duration: row[duration],
+            createdAt: Date(timeIntervalSince1970: row[createdAt]),
+            folderId: row[folderId].flatMap { UUID(uuidString: $0) },
+            isFavorite: row[isFavorite],
+            aiSummary: row[aiSummary],
+            aiKeywords: keywords,
+            actionItems: actions
+        )
+    }
+
     func saveNote(_ note: VoiceNote) throws {
         guard let db = db else { throw DatabaseError.connectionFailed }
 
@@ -129,7 +167,10 @@ final class DatabaseService: @unchecked Sendable {
             duration <- note.duration,
             createdAt <- note.createdAt.timeIntervalSince1970,
             folderId <- note.folderId?.uuidString,
-            isFavorite <- note.isFavorite
+            isFavorite <- note.isFavorite,
+            aiSummary <- note.aiSummary,
+            aiKeywords <- note.aiKeywords.joined(separator: "|||"),
+            actionItems <- note.actionItems.joined(separator: "|||")
         )
         try db.run(insert)
     }
@@ -141,18 +182,7 @@ final class DatabaseService: @unchecked Sendable {
         let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
 
         for row in try db.prepare(notes.order(createdAt.desc)) {
-            let audioURL = documentsPath.appendingPathComponent(row[audioFileName])
-            let note = VoiceNote(
-                id: UUID(uuidString: row[id]) ?? UUID(),
-                title: row[title],
-                transcription: row[transcription],
-                audioFileURL: audioURL,
-                duration: row[duration],
-                createdAt: Date(timeIntervalSince1970: row[createdAt]),
-                folderId: row[folderId].flatMap { UUID(uuidString: $0) },
-                isFavorite: row[isFavorite]
-            )
-            results.append(note)
+            results.append(parseVoiceNote(row: row, documentsPath: documentsPath))
         }
         return results
     }
@@ -171,18 +201,7 @@ final class DatabaseService: @unchecked Sendable {
         }
 
         for row in try db.prepare(query) {
-            let audioURL = documentsPath.appendingPathComponent(row[audioFileName])
-            let note = VoiceNote(
-                id: UUID(uuidString: row[id]) ?? UUID(),
-                title: row[title],
-                transcription: row[transcription],
-                audioFileURL: audioURL,
-                duration: row[duration],
-                createdAt: Date(timeIntervalSince1970: row[createdAt]),
-                folderId: row[self.folderId].flatMap { UUID(uuidString: $0) },
-                isFavorite: row[isFavorite]
-            )
-            results.append(note)
+            results.append(parseVoiceNote(row: row, documentsPath: documentsPath))
         }
         return results
     }
@@ -194,18 +213,7 @@ final class DatabaseService: @unchecked Sendable {
         let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
 
         for row in try db.prepare(notes.filter(isFavorite == true).order(createdAt.desc)) {
-            let audioURL = documentsPath.appendingPathComponent(row[audioFileName])
-            let note = VoiceNote(
-                id: UUID(uuidString: row[id]) ?? UUID(),
-                title: row[title],
-                transcription: row[transcription],
-                audioFileURL: audioURL,
-                duration: row[duration],
-                createdAt: Date(timeIntervalSince1970: row[createdAt]),
-                folderId: row[folderId].flatMap { UUID(uuidString: $0) },
-                isFavorite: row[isFavorite]
-            )
-            results.append(note)
+            results.append(parseVoiceNote(row: row, documentsPath: documentsPath))
         }
         return results
     }
@@ -225,18 +233,7 @@ final class DatabaseService: @unchecked Sendable {
         ).order(createdAt.desc)
 
         for row in try db.prepare(searchQuery) {
-            let audioURL = documentsPath.appendingPathComponent(row[audioFileName])
-            let note = VoiceNote(
-                id: UUID(uuidString: row[id]) ?? UUID(),
-                title: row[title],
-                transcription: row[transcription],
-                audioFileURL: audioURL,
-                duration: row[duration],
-                createdAt: Date(timeIntervalSince1970: row[createdAt]),
-                folderId: row[folderId].flatMap { UUID(uuidString: $0) },
-                isFavorite: row[isFavorite]
-            )
-            results.append(note)
+            results.append(parseVoiceNote(row: row, documentsPath: documentsPath))
         }
         return results
     }
@@ -249,7 +246,10 @@ final class DatabaseService: @unchecked Sendable {
             title <- note.title,
             transcription <- note.transcription,
             folderId <- note.folderId?.uuidString,
-            isFavorite <- note.isFavorite
+            isFavorite <- note.isFavorite,
+            aiSummary <- note.aiSummary,
+            aiKeywords <- note.aiKeywords.joined(separator: "|||"),
+            actionItems <- note.actionItems.joined(separator: "|||")
         ))
     }
 
@@ -283,18 +283,7 @@ final class DatabaseService: @unchecked Sendable {
         guard let row = try db.pluck(query) else { return nil }
 
         let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let audioURL = documentsPath.appendingPathComponent(row[audioFileName])
-
-        return VoiceNote(
-            id: UUID(uuidString: row[id]) ?? UUID(),
-            title: row[title],
-            transcription: row[transcription],
-            audioFileURL: audioURL,
-            duration: row[duration],
-            createdAt: Date(timeIntervalSince1970: row[createdAt]),
-            folderId: row[folderId].flatMap { UUID(uuidString: $0) },
-            isFavorite: row[isFavorite]
-        )
+        return parseVoiceNote(row: row, documentsPath: documentsPath)
     }
 }
 

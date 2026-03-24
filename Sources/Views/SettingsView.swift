@@ -2,7 +2,10 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var appState: AppState
+    @StateObject private var syncService = iCloudSyncService.shared
     @Environment(\.dismiss) private var dismiss
+    @State private var showConflictSheet = false
+    @State private var isSyncing = false
 
     private let languages = [
         ("English (US)", "en-US"),
@@ -25,6 +28,100 @@ struct SettingsView: View {
 
                 ScrollView {
                     VStack(spacing: 24) {
+                        // iCloud Sync section
+                        SettingsSection(title: "iCloud Sync") {
+                            GlassCard {
+                                VStack(spacing: 14) {
+                                    HStack {
+                                        Image(systemName: "icloud")
+                                            .font(.system(size: 20))
+                                            .foregroundColor(syncService.isCloudAvailable ? DesignTokens.accent : DesignTokens.textSecondary)
+
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("Sync with iCloud")
+                                                .font(.system(size: 15, weight: .medium))
+                                                .foregroundColor(DesignTokens.textPrimary)
+
+                                            Text(syncService.isCloudAvailable ? "Keep notes in sync across all your devices" : "Sign in to iCloud to enable sync")
+                                                .font(.system(size: 12))
+                                                .foregroundColor(DesignTokens.textSecondary)
+                                        }
+
+                                        Spacer()
+
+                                        if syncService.syncStatus == .conflict {
+                                            Image(systemName: "exclamationmark.icloud")
+                                                .foregroundColor(.orange)
+                                        } else if syncService.syncStatus == .syncing {
+                                            ProgressView()
+                                                .scaleEffect(0.7)
+                                                .tint(DesignTokens.accent)
+                                        } else if syncService.syncStatus == .synced {
+                                            Image(systemName: "checkmark.icloud")
+                                                .foregroundColor(DesignTokens.accent)
+                                        }
+                                    }
+
+                                    if syncService.isCloudAvailable {
+                                        HStack(spacing: 12) {
+                                            Button {
+                                                Task {
+                                                    isSyncing = true
+                                                    await syncService.sync()
+                                                    isSyncing = false
+                                                }
+                                            } label: {
+                                                HStack(spacing: 6) {
+                                                    if isSyncing {
+                                                        ProgressView()
+                                                            .scaleEffect(0.6)
+                                                            .tint(DesignTokens.background)
+                                                    } else {
+                                                        Image(systemName: "arrow.triangle.2.circlepath")
+                                                            .font(.system(size: 13))
+                                                    }
+                                                    Text("Sync Now")
+                                                        .font(.system(size: 13, weight: .semibold))
+                                                }
+                                                .foregroundColor(DesignTokens.background)
+                                                .frame(maxWidth: .infinity)
+                                                .frame(height: 36)
+                                                .background(DesignTokens.accent)
+                                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                            }
+                                            .disabled(isSyncing)
+
+                                            if syncService.syncStatus == .conflict {
+                                                Button {
+                                                    showConflictSheet = true
+                                                } label: {
+                                                    HStack(spacing: 4) {
+                                                        Image(systemName: "exclamationmark.triangle")
+                                                            .font(.system(size: 11))
+                                                        Text("Resolve")
+                                                            .font(.system(size: 13, weight: .semibold))
+                                                    }
+                                                    .foregroundColor(.orange)
+                                                    .frame(maxWidth: .infinity)
+                                                    .frame(height: 36)
+                                                    .background(Color.orange.opacity(0.15))
+                                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                                }
+                                            }
+                                        }
+
+                                        SyncStatusIndicator(syncService: syncService)
+                                    } else {
+                                        Text("Sign in to iCloud in Settings to enable sync")
+                                            .font(.system(size: 12))
+                                            .foregroundColor(DesignTokens.textSecondary)
+                                            .padding(.top, 4)
+                                    }
+                                }
+                                .padding(16)
+                            }
+                        }
+
                         // Language setting
                         SettingsSection(title: "Speech Recognition") {
                             GlassCard {
@@ -126,7 +223,176 @@ struct SettingsView: View {
                     .foregroundColor(DesignTokens.accent)
                 }
             }
+            .sheet(isPresented: $showConflictSheet) {
+                ConflictResolutionSheet()
+            }
         }
+    }
+}
+
+// MARK: - Conflict Resolution Sheet
+
+struct ConflictResolutionSheet: View {
+    @StateObject private var syncService = iCloudSyncService.shared
+    @State private var localNotes: [VoiceNote] = []
+    @State private var cloudNotes: [VoiceNote] = []
+    @State private var isLoading = true
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                DesignTokens.background
+                    .ignoresSafeArea()
+
+                if isLoading {
+                    ProgressView()
+                        .tint(DesignTokens.accent)
+                } else {
+                    VStack(spacing: 24) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.orange.opacity(0.15))
+                                .frame(width: 80, height: 80)
+
+                            Image(systemName: "exclamationmark.icloud")
+                                .font(.system(size: 32))
+                                .foregroundColor(.orange)
+                        }
+                        .padding(.top, 16)
+
+                        VStack(spacing: 8) {
+                            Text("Sync Conflict")
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundColor(DesignTokens.textPrimary)
+
+                            Text("Your local notes and iCloud have different data. Choose which version to keep.")
+                                .font(.system(size: 14))
+                                .foregroundColor(DesignTokens.textSecondary)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 24)
+                        }
+
+                        HStack(spacing: 16) {
+                            ConflictOption(
+                                icon: "iphone",
+                                label: "Local",
+                                count: localNotes.count,
+                                color: DesignTokens.accent
+                            )
+                            ConflictOption(
+                                icon: "icloud",
+                                label: "iCloud",
+                                count: cloudNotes.count,
+                                color: .blue
+                            )
+                        }
+                        .padding(.horizontal, 24)
+
+                        VStack(spacing: 12) {
+                            Button {
+                                Task {
+                                    await syncService.resolveConflictPreferLocal()
+                                    dismiss()
+                                }
+                            } label: {
+                                Text("Keep Local")
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundColor(DesignTokens.background)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 46)
+                                    .background(DesignTokens.accent)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            }
+
+                            Button {
+                                Task {
+                                    if let _ = await syncService.resolveConflictPreferCloud() {
+                                        dismiss()
+                                    }
+                                }
+                            } label: {
+                                Text("Use iCloud")
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundColor(DesignTokens.textPrimary)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 46)
+                                    .background(DesignTokens.surface)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            }
+                        }
+                        .padding(.horizontal, 24)
+
+                        Button {
+                            dismiss()
+                        } label: {
+                            Text("Decide Later")
+                                .font(.system(size: 13))
+                                .foregroundColor(DesignTokens.textSecondary)
+                        }
+
+                        Spacer()
+                    }
+                }
+            }
+            .navigationTitle("Resolve Conflict")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(DesignTokens.background, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .font(.system(size: 15))
+                    .foregroundColor(DesignTokens.textSecondary)
+                }
+            }
+        }
+        .task {
+            await loadCounts()
+        }
+    }
+
+    private func loadCounts() async {
+        isLoading = true
+        do {
+            localNotes = try DatabaseService.shared.fetchAllNotes()
+            if let cloud = await syncService.loadFromCloud() {
+                cloudNotes = cloud
+            }
+        } catch {
+            localNotes = []
+            cloudNotes = []
+        }
+        isLoading = false
+    }
+}
+
+struct ConflictOption: View {
+    let icon: String
+    let label: String
+    let count: Int
+    let color: Color
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 24))
+                .foregroundColor(color)
+
+            Text(label)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(DesignTokens.textSecondary)
+
+            Text("\(count) notes")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundColor(DesignTokens.textPrimary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 16)
+        .background(DesignTokens.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 }
 

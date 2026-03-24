@@ -11,9 +11,12 @@
 		1050462416915673B610C21D /* AudioRecorderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 902A411B283751D230393758 /* AudioRecorderService.swift */; };
 		184DF44C692F503F86377425 /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEDCB5020F288C1FEDE83B29 /* TranscriptionService.swift */; };
 		19636E14F33372B2345C2841 /* PricingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39735268B867017C66F734B /* PricingView.swift */; };
+		2C219802EB4D9D5562B60742 /* ExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0311A2273611C6ED00F1DE7B /* ExportService.swift */; };
 		44CB9F67475E22565D497D92 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AD74035CEEA2ED72B4D2E9C /* ContentView.swift */; };
+		4D6938F5C3EB19A669D7EF24 /* AISummaryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CE4C80B42D4F82F8BD99BF1 /* AISummaryService.swift */; };
 		543830C033281B173C36A3ED /* CrispApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896E88BE2DE3A2BE0AEDF699 /* CrispApp.swift */; };
 		5AA679956D2326667AC4945C /* VoiceNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2DB66214A67FF0E90BEB46 /* VoiceNote.swift */; };
+		5C2A857DE1080C61FB005CB7 /* iCloudSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1D66DF4FF71DE8AAC4FFE3 /* iCloudSyncService.swift */; };
 		68D4C5829D4079C121E772BB /* ErrorStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE34F57ADF2973C277B957A2 /* ErrorStateView.swift */; };
 		691DC937A8D37965D1CF3DE8 /* FolderPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5C8EC78BB4E0EADA9A206BB /* FolderPickerView.swift */; };
 		71C8138A79DACAF865EF70FE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88CE1F08058B81E3591472A7 /* Assets.xcassets */; };
@@ -48,9 +51,11 @@
 
 /* Begin PBXFileReference section */
 		00956C1CBCF7012066931A53 /* CrispWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = CrispWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		0311A2273611C6ED00F1DE7B /* ExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportService.swift; sourceTree = "<group>"; };
 		0520C77A929D2360ECC653C1 /* AppStoreAssets.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AppStoreAssets.md; sourceTree = "<group>"; };
 		0B47A4214550B855A9D1EB58 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
 		19063C7BDC9206405876B453 /* CaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureView.swift; sourceTree = "<group>"; };
+		1CE4C80B42D4F82F8BD99BF1 /* AISummaryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AISummaryService.swift; sourceTree = "<group>"; };
 		1FA448BC798F1EE4A8CDF2DA /* CrispWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CrispWidget.entitlements; sourceTree = "<group>"; };
 		2C73F580CF09D9DD73BB653A /* DatabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseService.swift; sourceTree = "<group>"; };
 		3127FBFDA8E786AA00B7D7A7 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
@@ -62,6 +67,7 @@
 		5D6D6F0FE3BB0AA6B239C9BA /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		66E0C08DB5563025090E5329 /* AudioPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerService.swift; sourceTree = "<group>"; };
 		6777FFC058D3B90CD4E69571 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		6E1D66DF4FF71DE8AAC4FFE3 /* iCloudSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iCloudSyncService.swift; sourceTree = "<group>"; };
 		88CE1F08058B81E3591472A7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		896E88BE2DE3A2BE0AEDF699 /* CrispApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrispApp.swift; sourceTree = "<group>"; };
 		902A411B283751D230393758 /* AudioRecorderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorderService.swift; sourceTree = "<group>"; };
@@ -174,9 +180,12 @@
 		ECEFE7B672F8425FCD0D9B55 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				1CE4C80B42D4F82F8BD99BF1 /* AISummaryService.swift */,
 				66E0C08DB5563025090E5329 /* AudioPlayerService.swift */,
 				902A411B283751D230393758 /* AudioRecorderService.swift */,
 				2C73F580CF09D9DD73BB653A /* DatabaseService.swift */,
+				0311A2273611C6ED00F1DE7B /* ExportService.swift */,
+				6E1D66DF4FF71DE8AAC4FFE3 /* iCloudSyncService.swift */,
 				B66FF7539A962FCA035EECFE /* SettingsService.swift */,
 				BEDCB5020F288C1FEDE83B29 /* TranscriptionService.swift */,
 			);
@@ -305,6 +314,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D6938F5C3EB19A669D7EF24 /* AISummaryService.swift in Sources */,
 				F95E03D9A80A2147315AB7EE /* AppSettings.swift in Sources */,
 				8D63C906C7291272A9AE7B96 /* AppState.swift in Sources */,
 				89045282A495AA4524DECACD /* AudioPlayerService.swift in Sources */,
@@ -315,6 +325,7 @@
 				7BC8BDF2247993AC959C9EAE /* DatabaseService.swift in Sources */,
 				E97B0E572BA1A132167692EA /* DesignTokens.swift in Sources */,
 				68D4C5829D4079C121E772BB /* ErrorStateView.swift in Sources */,
+				2C219802EB4D9D5562B60742 /* ExportService.swift in Sources */,
 				8318CFD028BC24FC1E88E90A /* Folder.swift in Sources */,
 				691DC937A8D37965D1CF3DE8 /* FolderPickerView.swift in Sources */,
 				BA63AFCB9FB8B49984438444 /* GlassCard.swift in Sources */,
@@ -328,6 +339,7 @@
 				184DF44C692F503F86377425 /* TranscriptionService.swift in Sources */,
 				5AA679956D2326667AC4945C /* VoiceNote.swift in Sources */,
 				C38726CF1912F9DD0B4AA749 /* WaveformView.swift in Sources */,
+				5C2A857DE1080C61FB005CB7 /* iCloudSyncService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

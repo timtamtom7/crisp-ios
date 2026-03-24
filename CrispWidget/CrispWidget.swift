@@ -5,9 +5,15 @@ import SwiftUI
 
 struct CrispWidgetEntry: TimelineEntry {
     let date: Date
-    let lastNoteTitle: String?
-    let lastNoteDate: String?
-    let lastNoteDuration: String?
+    let notes: [WidgetNote]
+    let isEmpty: Bool
+}
+
+struct WidgetNote: Identifiable {
+    let id: UUID
+    let title: String
+    let date: String
+    let duration: String
 }
 
 // MARK: - Timeline Provider
@@ -16,9 +22,12 @@ struct CrispWidgetProvider: TimelineProvider {
     func placeholder(in context: Context) -> CrispWidgetEntry {
         CrispWidgetEntry(
             date: Date(),
-            lastNoteTitle: "Meeting notes",
-            lastNoteDate: "Today",
-            lastNoteDuration: "2:34"
+            notes: [
+                WidgetNote(id: UUID(), title: "Meeting notes", date: "Today", duration: "2:34"),
+                WidgetNote(id: UUID(), title: "Shopping list", date: "Yesterday", duration: "0:45"),
+                WidgetNote(id: UUID(), title: "Ideas", date: "Mon", duration: "1:12")
+            ],
+            isEmpty: false
         )
     }
 
@@ -35,17 +44,58 @@ struct CrispWidgetProvider: TimelineProvider {
     }
 
     private func loadEntry() -> CrispWidgetEntry {
-        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let dbPath = documentsPath.appendingPathComponent("crisp.sqlite3")
-
-        guard FileManager.default.fileExists(atPath: dbPath.path) else {
-            return CrispWidgetEntry(date: Date(), lastNoteTitle: nil, lastNoteDate: nil, lastNoteDuration: nil)
+        // Use shared app group container to read notes
+        guard let containerURL = FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: "group.com.crisp.app"
+        ) else {
+            return CrispWidgetEntry(date: Date(), notes: [], isEmpty: true)
         }
 
-        // Simple note loading without SQLite (to avoid linking complexity)
-        // In production, use App Groups shared container
-        return CrispWidgetEntry(date: Date(), lastNoteTitle: nil, lastNoteDate: nil, lastNoteDuration: nil)
+        let dbPath = containerURL.appendingPathComponent("crisp.sqlite3")
+        guard FileManager.default.fileExists(atPath: dbPath.path) else {
+            return CrispWidgetEntry(date: Date(), notes: [], isEmpty: true)
+        }
+
+        // Read last 3 notes using a lightweight JSON file written by the main app
+        let notesFile = containerURL.appendingPathComponent("widget_notes.json")
+        guard let data = try? Data(contentsOf: notesFile),
+              let widgetNotes = try? JSONDecoder().decode([WidgetNoteData].self, from: data) else {
+            return CrispWidgetEntry(date: Date(), notes: [], isEmpty: true)
+        }
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .short
+        dateFormatter.timeStyle = .short
+
+        let relativeFormatter = RelativeDateTimeFormatter()
+        relativeFormatter.unitsStyle = .abbreviated
+
+        let notes = widgetNotes.prefix(3).map { noteData -> WidgetNote in
+            let date = noteData.createdAt
+            let relative = relativeFormatter.localizedString(for: date, relativeTo: Date())
+            return WidgetNote(
+                id: noteData.id,
+                title: noteData.title,
+                date: relative,
+                duration: formatDuration(noteData.duration)
+            )
+        }
+
+        return CrispWidgetEntry(date: Date(), notes: Array(notes), isEmpty: notes.isEmpty)
     }
+
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let minutes = Int(duration) / 60
+        let seconds = Int(duration) % 60
+        return String(format: "%d:%02d", minutes, seconds)
+    }
+}
+
+struct WidgetNoteData: Codable {
+    let id: UUID
+    let title: String
+    let createdAt: Date
+    let duration: TimeInterval
 }
 
 // MARK: - Widget View
@@ -71,7 +121,6 @@ struct SmallWidgetView: View {
 
     var body: some View {
         ZStack {
-            // Background
             ContainerRelativeShape()
                 .fill(
                     LinearGradient(
@@ -102,25 +151,36 @@ struct SmallWidgetView: View {
 
                 Spacer()
 
-                if let title = entry.lastNoteTitle {
-                    Text(title)
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(.white)
-                        .lineLimit(2)
+                if let firstNote = entry.notes.first {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(firstNote.title)
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.white)
+                            .lineLimit(2)
 
-                    if let date = entry.lastNoteDate {
-                        Text(date)
+                        HStack(spacing: 4) {
+                            Text(firstNote.date)
+                                .font(.system(size: 11))
+                                .foregroundColor(Color(hex: "8b8b8e"))
+
+                            Text("·")
+                                .foregroundColor(Color(hex: "8b8b8e"))
+
+                            Text(firstNote.duration)
+                                .font(.system(size: 11))
+                                .foregroundColor(Color(hex: "8b8b8e"))
+                        }
+                    }
+                } else {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("No recordings yet")
+                            .font(.system(size: 13))
+                            .foregroundColor(Color(hex: "8b8b8e"))
+
+                        Text("Tap to record")
                             .font(.system(size: 11))
                             .foregroundColor(Color(hex: "8b8b8e"))
                     }
-                } else {
-                    Text("No recordings yet")
-                        .font(.system(size: 13))
-                        .foregroundColor(Color(hex: "8b8b8e"))
-
-                    Text("Tap to record")
-                        .font(.system(size: 11))
-                        .foregroundColor(Color(hex: "8b8b8e"))
                 }
             }
             .padding(14)
@@ -143,12 +203,12 @@ struct MediumWidgetView: View {
                     )
                 )
 
-            HStack(spacing: 16) {
-                // Left: Last recording info
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
+            HStack(spacing: 0) {
+                // Left column: Last recording info
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 6) {
                         Image(systemName: "waveform")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(Color(hex: "c8a97e"))
 
                         Text("Crisp")
@@ -158,52 +218,68 @@ struct MediumWidgetView: View {
 
                     Spacer()
 
-                    if let title = entry.lastNoteTitle {
-                        Text(title)
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.white)
-                            .lineLimit(2)
+                    if let firstNote = entry.notes.first {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(firstNote.title)
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(.white)
+                                .lineLimit(1)
 
-                        HStack(spacing: 6) {
-                            if let date = entry.lastNoteDate {
-                                Text(date)
-                                    .font(.system(size: 12))
-                                    .foregroundColor(Color(hex: "8b8b8e"))
-                            }
-
-                            if let duration = entry.lastNoteDuration {
+                            HStack(spacing: 4) {
+                                Text(firstNote.date)
                                 Text("·")
-                                    .foregroundColor(Color(hex: "8b8b8e"))
-                                Text(duration)
-                                    .font(.system(size: 12))
-                                    .foregroundColor(Color(hex: "8b8b8e"))
+                                Text(firstNote.duration)
                             }
+                            .font(.system(size: 11))
+                            .foregroundColor(Color(hex: "8b8b8e"))
                         }
                     } else {
                         Text("No recordings yet")
-                            .font(.system(size: 14))
-                            .foregroundColor(Color(hex: "8b8b8e"))
-
-                        Text("Tap to capture your first note")
-                            .font(.system(size: 12))
+                            .font(.system(size: 13))
                             .foregroundColor(Color(hex: "8b8b8e"))
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 Spacer()
 
-                // Right: Quick record button
-                VStack {
+                // Right: Recent recordings list + quick record button
+                VStack(alignment: .trailing, spacing: 8) {
+                    // Recent recordings
+                    if entry.notes.count > 1 {
+                        VStack(alignment: .trailing, spacing: 4) {
+                            ForEach(entry.notes.dropFirst().prefix(2)) { note in
+                                HStack(spacing: 4) {
+                                    Text(note.title)
+                                        .font(.system(size: 11))
+                                        .foregroundColor(Color(hex: "8b8b8e"))
+                                        .lineLimit(1)
+
+                                    Text("·")
+                                        .foregroundColor(Color(hex: "8b8b8e"))
+
+                                    Text(note.duration)
+                                        .font(.system(size: 11))
+                                        .foregroundColor(Color(hex: "8b8b8e"))
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer()
+
+                    // Quick record button
                     ZStack {
                         Circle()
                             .fill(Color(hex: "c8a97e"))
-                            .frame(width: 52, height: 52)
+                            .frame(width: 44, height: 44)
 
                         Image(systemName: "mic.fill")
-                            .font(.system(size: 22))
+                            .font(.system(size: 18))
                             .foregroundColor(Color(hex: "0d0d0e"))
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .trailing)
             }
             .padding(16)
         }
@@ -223,12 +299,12 @@ struct CrispWidget: Widget {
                 .containerBackground(.fill.tertiary, for: .widget)
         }
         .configurationDisplayName("Crisp")
-        .description("Quick access to your latest recording.")
+        .description("Quick access to your latest recordings.")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
 
-// MARK: - Color Extension for Widget
+// MARK: - Color Extension
 
 extension Color {
     init(hex: String) {

@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import WidgetKit
 
 struct CaptureView: View {
     @EnvironmentObject var appState: AppState
@@ -197,6 +198,10 @@ final class CaptureViewModel: ObservableObject {
 
             do {
                 try DatabaseService.shared.saveNote(note)
+
+                // Refresh widget notes after saving
+                WidgetCenter.shared.reloadTimelines(ofKind: "CrispWidget")
+
                 state = .saved
 
                 try? await Task.sleep(nanoseconds: 1_500_000_000)

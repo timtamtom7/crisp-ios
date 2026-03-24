@@ -9,9 +9,11 @@
 /* Begin PBXBuildFile section */
 		036BA6B3A084EB9FF0629A8D /* RecordButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03B8ACFE9E69E0F51B99624 /* RecordButton.swift */; };
 		1050462416915673B610C21D /* AudioRecorderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 902A411B283751D230393758 /* AudioRecorderService.swift */; };
+		1168EE596792524B5D7E9433 /* BulkExportSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456B1AADBC93B7700A4E905A /* BulkExportSheet.swift */; };
 		184DF44C692F503F86377425 /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEDCB5020F288C1FEDE83B29 /* TranscriptionService.swift */; };
 		19636E14F33372B2345C2841 /* PricingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39735268B867017C66F734B /* PricingView.swift */; };
 		2C219802EB4D9D5562B60742 /* ExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0311A2273611C6ED00F1DE7B /* ExportService.swift */; };
+		3E261987C1081F08F52B4B85 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 782E7EF318E64CA03EF44FFF /* Subscription.swift */; };
 		44CB9F67475E22565D497D92 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AD74035CEEA2ED72B4D2E9C /* ContentView.swift */; };
 		4D6938F5C3EB19A669D7EF24 /* AISummaryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CE4C80B42D4F82F8BD99BF1 /* AISummaryService.swift */; };
 		543830C033281B173C36A3ED /* CrispApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896E88BE2DE3A2BE0AEDF699 /* CrispApp.swift */; };
@@ -19,6 +21,7 @@
 		5C2A857DE1080C61FB005CB7 /* iCloudSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1D66DF4FF71DE8AAC4FFE3 /* iCloudSyncService.swift */; };
 		68D4C5829D4079C121E772BB /* ErrorStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE34F57ADF2973C277B957A2 /* ErrorStateView.swift */; };
 		691DC937A8D37965D1CF3DE8 /* FolderPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5C8EC78BB4E0EADA9A206BB /* FolderPickerView.swift */; };
+		706B41A8420C4A36740EFC81 /* CrispKeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 327693348E2B02EB2764720F /* CrispKeyboardViewController.swift */; };
 		71C8138A79DACAF865EF70FE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88CE1F08058B81E3591472A7 /* Assets.xcassets */; };
 		7BC8BDF2247993AC959C9EAE /* DatabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C73F580CF09D9DD73BB653A /* DatabaseService.swift */; };
 		8318CFD028BC24FC1E88E90A /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF55BAD4F15E80ED5CF0F932 /* Folder.swift */; };
@@ -40,6 +43,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		420B94A4B9E874637D27B38D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0A4E550EF28423E788C17C4A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9C374F66A874A8D7517F66E3;
+			remoteInfo = Crisp;
+		};
 		62EE065E2EE60FF5F1FCCF2E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0A4E550EF28423E788C17C4A /* Project object */;
@@ -51,6 +61,7 @@
 
 /* Begin PBXFileReference section */
 		00956C1CBCF7012066931A53 /* CrispWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = CrispWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		009E69793A31FC766F940C56 /* CrispKeyboard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CrispKeyboard.entitlements; sourceTree = "<group>"; };
 		0311A2273611C6ED00F1DE7B /* ExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportService.swift; sourceTree = "<group>"; };
 		0520C77A929D2360ECC653C1 /* AppStoreAssets.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AppStoreAssets.md; sourceTree = "<group>"; };
 		0B47A4214550B855A9D1EB58 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
@@ -59,15 +70,18 @@
 		1FA448BC798F1EE4A8CDF2DA /* CrispWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CrispWidget.entitlements; sourceTree = "<group>"; };
 		2C73F580CF09D9DD73BB653A /* DatabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseService.swift; sourceTree = "<group>"; };
 		3127FBFDA8E786AA00B7D7A7 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		327693348E2B02EB2764720F /* CrispKeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrispKeyboardViewController.swift; sourceTree = "<group>"; };
 		3D2DB66214A67FF0E90BEB46 /* VoiceNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNote.swift; sourceTree = "<group>"; };
 		41138C5DEA7310262C2F589F /* WaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformView.swift; sourceTree = "<group>"; };
 		428C80064479FC6E133CE861 /* Crisp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Crisp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		456B1AADBC93B7700A4E905A /* BulkExportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BulkExportSheet.swift; sourceTree = "<group>"; };
 		5AD74035CEEA2ED72B4D2E9C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		5C4E2E9B518C8D886C35FEF0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		5D6D6F0FE3BB0AA6B239C9BA /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		66E0C08DB5563025090E5329 /* AudioPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerService.swift; sourceTree = "<group>"; };
 		6777FFC058D3B90CD4E69571 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		6E1D66DF4FF71DE8AAC4FFE3 /* iCloudSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iCloudSyncService.swift; sourceTree = "<group>"; };
+		782E7EF318E64CA03EF44FFF /* Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
 		88CE1F08058B81E3591472A7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		896E88BE2DE3A2BE0AEDF699 /* CrispApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrispApp.swift; sourceTree = "<group>"; };
 		902A411B283751D230393758 /* AudioRecorderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorderService.swift; sourceTree = "<group>"; };
@@ -79,11 +93,13 @@
 		B91175398F4E3DA4A6640B5E /* CrispWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrispWidget.swift; sourceTree = "<group>"; };
 		BEDCB5020F288C1FEDE83B29 /* TranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionService.swift; sourceTree = "<group>"; };
 		C4A33D6F44F7090788A92DD3 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		C80FBD47F289CE519685B7C5 /* CrispKeyboard.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = CrispKeyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		D03B8ACFE9E69E0F51B99624 /* RecordButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordButton.swift; sourceTree = "<group>"; };
 		E37C129BC72CC445F94C4859 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		EA1DA957DE69CE173ACCB7FA /* Crisp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Crisp.entitlements; sourceTree = "<group>"; };
 		EE34F57ADF2973C277B957A2 /* ErrorStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorStateView.swift; sourceTree = "<group>"; };
 		F39735268B867017C66F734B /* PricingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PricingView.swift; sourceTree = "<group>"; };
+		F9E2EAD5BAC151832C15F858 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		FF55BAD4F15E80ED5CF0F932 /* Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folder.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -123,6 +139,7 @@
 		1C765AB2D60813A1F82191B0 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				456B1AADBC93B7700A4E905A /* BulkExportSheet.swift */,
 				19063C7BDC9206405876B453 /* CaptureView.swift */,
 				EE34F57ADF2973C277B957A2 /* ErrorStateView.swift */,
 				A5C8EC78BB4E0EADA9A206BB /* FolderPickerView.swift */,
@@ -139,9 +156,20 @@
 			isa = PBXGroup;
 			children = (
 				428C80064479FC6E133CE861 /* Crisp.app */,
+				C80FBD47F289CE519685B7C5 /* CrispKeyboard.appex */,
 				00956C1CBCF7012066931A53 /* CrispWidget.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		744B5B04BD941FC29B3FCA39 /* CrispKeyboard */ = {
+			isa = PBXGroup;
+			children = (
+				009E69793A31FC766F940C56 /* CrispKeyboard.entitlements */,
+				327693348E2B02EB2764720F /* CrispKeyboardViewController.swift */,
+				F9E2EAD5BAC151832C15F858 /* Info.plist */,
+			);
+			path = CrispKeyboard;
 			sourceTree = "<group>";
 		};
 		79B44F830905971C125D81D7 /* Sources */ = {
@@ -197,6 +225,7 @@
 			children = (
 				AC7EC4C27B4A92155B47BAF3 /* AppSettings.swift */,
 				FF55BAD4F15E80ED5CF0F932 /* Folder.swift */,
+				782E7EF318E64CA03EF44FFF /* Subscription.swift */,
 				3D2DB66214A67FF0E90BEB46 /* VoiceNote.swift */,
 			);
 			path = Models;
@@ -205,6 +234,7 @@
 		F271DF779E8E4FB86C23455B = {
 			isa = PBXGroup;
 			children = (
+				744B5B04BD941FC29B3FCA39 /* CrispKeyboard */,
 				A25B26B63A3525B27AAAC235 /* CrispWidget */,
 				7A450D8A08AABC274230758C /* Resources */,
 				79B44F830905971C125D81D7 /* Sources */,
@@ -215,6 +245,22 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		06AD086E4C131D7EFAD1E9A5 /* CrispKeyboard */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F515BE74D7983DCD7A6D47D6 /* Build configuration list for PBXNativeTarget "CrispKeyboard" */;
+			buildPhases = (
+				FFA5AE84980350678CBB3BE7 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A45966419EAEEF20E3029EB0 /* PBXTargetDependency */,
+			);
+			name = CrispKeyboard;
+			productName = CrispKeyboard;
+			productReference = C80FBD47F289CE519685B7C5 /* CrispKeyboard.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		9C374F66A874A8D7517F66E3 /* Crisp */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B3AA104638FC8891AC8DF8D2 /* Build configuration list for PBXNativeTarget "Crisp" */;
@@ -260,6 +306,9 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
+					06AD086E4C131D7EFAD1E9A5 = {
+						DevelopmentTeam = "";
+					};
 					9C374F66A874A8D7517F66E3 = {
 						DevelopmentTeam = "";
 					};
@@ -284,6 +333,7 @@
 			projectRoot = "";
 			targets = (
 				9C374F66A874A8D7517F66E3 /* Crisp */,
+				06AD086E4C131D7EFAD1E9A5 /* CrispKeyboard */,
 				D896C138F4E30860A19F3447 /* CrispWidget */,
 			);
 		};
@@ -319,6 +369,7 @@
 				8D63C906C7291272A9AE7B96 /* AppState.swift in Sources */,
 				89045282A495AA4524DECACD /* AudioPlayerService.swift in Sources */,
 				1050462416915673B610C21D /* AudioRecorderService.swift in Sources */,
+				1168EE596792524B5D7E9433 /* BulkExportSheet.swift in Sources */,
 				FD459621EF021FFC35F34216 /* CaptureView.swift in Sources */,
 				44CB9F67475E22565D497D92 /* ContentView.swift in Sources */,
 				543830C033281B173C36A3ED /* CrispApp.swift in Sources */,
@@ -336,10 +387,19 @@
 				036BA6B3A084EB9FF0629A8D /* RecordButton.swift in Sources */,
 				CEA0B1E6EDA4C41A1B818AB0 /* SettingsService.swift in Sources */,
 				A0EAC1EB3DE0650C2E783263 /* SettingsView.swift in Sources */,
+				3E261987C1081F08F52B4B85 /* Subscription.swift in Sources */,
 				184DF44C692F503F86377425 /* TranscriptionService.swift in Sources */,
 				5AA679956D2326667AC4945C /* VoiceNote.swift in Sources */,
 				C38726CF1912F9DD0B4AA749 /* WaveformView.swift in Sources */,
 				5C2A857DE1080C61FB005CB7 /* iCloudSyncService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FFA5AE84980350678CBB3BE7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				706B41A8420C4A36740EFC81 /* CrispKeyboardViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -350,6 +410,11 @@
 			isa = PBXTargetDependency;
 			target = 9C374F66A874A8D7517F66E3 /* Crisp */;
 			targetProxy = 62EE065E2EE60FF5F1FCCF2E /* PBXContainerItemProxy */;
+		};
+		A45966419EAEEF20E3029EB0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9C374F66A874A8D7517F66E3 /* Crisp */;
+			targetProxy = 420B94A4B9E874637D27B38D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -407,6 +472,26 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		2712DC08576D01AF8B4C5B5B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_ENTITLEMENTS = CrispKeyboard/CrispKeyboard.entitlements;
+				CODE_SIGN_IDENTITY = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = CrispKeyboard/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.crisp.app.keyboard;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -516,6 +601,26 @@
 			};
 			name = Debug;
 		};
+		DA4A7F595E2DFEE84E772636 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_ENTITLEMENTS = CrispKeyboard/CrispKeyboard.entitlements;
+				CODE_SIGN_IDENTITY = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = CrispKeyboard/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.crisp.app.keyboard;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		E599615A60A7A479D66F477B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -585,6 +690,15 @@
 			buildConfigurations = (
 				E599615A60A7A479D66F477B /* Debug */,
 				6F8E7306E982C3BE5ECA597A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F515BE74D7983DCD7A6D47D6 /* Build configuration list for PBXNativeTarget "CrispKeyboard" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DA4A7F595E2DFEE84E772636 /* Debug */,
+				2712DC08576D01AF8B4C5B5B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

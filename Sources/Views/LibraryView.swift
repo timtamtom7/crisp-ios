@@ -34,6 +34,14 @@ struct LibraryView: View {
     @State private var showSortMenu = false
     @State private var showFolderPicker = false
 
+    // Bulk operations
+    @State private var isSelectionMode = false
+    @State private var selectedNoteIds: Set<UUID> = []
+    @State private var showBulkActionSheet = false
+    @State private var showBulkDeleteConfirmation = false
+    @State private var showBulkMoveSheet = false
+    @State private var showBulkExportSheet = false
+
     @Binding var showPricing: Bool
 
     var body: some View {
@@ -43,6 +51,11 @@ struct LibraryView: View {
                     .ignoresSafeArea()
 
                 VStack(spacing: 0) {
+                    // Selection mode bar
+                    if isSelectionMode {
+                        selectionModeBar
+                    }
+
                     // Section tabs
                     sectionTabs
 
@@ -71,13 +84,33 @@ struct LibraryView: View {
                     }
                 }
             }
-            .navigationTitle("Library")
+            .navigationTitle(isSelectionMode ? "\(selectedNoteIds.count) selected" : "Library")
             .navigationBarTitleDisplayMode(.large)
             .toolbarBackground(DesignTokens.background, for: .navigationBar)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if isSelectionMode {
+                        Button("Cancel") {
+                            exitSelectionMode()
+                        }
+                        .font(.system(size: 15))
+                        .foregroundColor(DesignTokens.textSecondary)
+                    }
+                }
+
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 16) {
+                        if !isSelectionMode && !notes.isEmpty {
+                            Button {
+                                enterSelectionMode()
+                            } label: {
+                                Image(systemName: "checkmark.circle")
+                                    .font(.system(size: 15))
+                                    .foregroundColor(DesignTokens.textSecondary)
+                            }
+                        }
+
                         Menu {
                             ForEach(SortOption.allCases, id: \.self) { option in
                                 Button {
@@ -138,6 +171,111 @@ struct LibraryView: View {
             loadFolders()
             loadNotes()
         }
+        .confirmationDialog("Bulk Actions", isPresented: $showBulkActionSheet) {
+            Button("Move to Folder") {
+                showBulkMoveSheet = true
+            }
+            Button("Export Selected") {
+                showBulkExportSheet = true
+            }
+            Button("Delete Selected", role: .destructive) {
+                showBulkDeleteConfirmation = true
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+        .sheet(isPresented: $showBulkMoveSheet) {
+            FolderPickerView(
+                selectedFolderId: .constant(nil),
+                onNoteMove: { folderId in
+                    bulkMove(to: folderId)
+                }
+            )
+        }
+        .sheet(isPresented: $showBulkExportSheet) {
+            BulkExportSheet(noteIds: Array(selectedNoteIds))
+        }
+        .confirmationDialog("Delete \(selectedNoteIds.count) notes?", isPresented: $showBulkDeleteConfirmation, titleVisibility: .visible) {
+            Button("Delete \(selectedNoteIds.count) notes", role: .destructive) {
+                bulkDelete()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This action cannot be undone.")
+        }
+    }
+
+    // MARK: - Selection Mode
+
+    private var selectionModeBar: some View {
+        HStack(spacing: 16) {
+            Button {
+                if selectedNoteIds.count == notes.count {
+                    selectedNoteIds.removeAll()
+                } else {
+                    selectedNoteIds = Set(notes.map { $0.id })
+                }
+            } label: {
+                Text(selectedNoteIds.count == notes.count ? "Deselect All" : "Select All")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(DesignTokens.accent)
+            }
+
+            Spacer()
+
+            Button {
+                showBulkActionSheet = true
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .font(.system(size: 20))
+                    .foregroundColor(selectedNoteIds.isEmpty ? DesignTokens.textSecondary : DesignTokens.accent)
+            }
+            .disabled(selectedNoteIds.isEmpty)
+
+            Button {
+                showBulkActionSheet = true
+            } label: {
+                Image(systemName: "trash")
+                    .font(.system(size: 20))
+                    .foregroundColor(selectedNoteIds.isEmpty ? DesignTokens.textSecondary : .red)
+            }
+            .disabled(selectedNoteIds.isEmpty)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(DesignTokens.surface)
+    }
+
+    private func enterSelectionMode() {
+        isSelectionMode = true
+    }
+
+    private func exitSelectionMode() {
+        isSelectionMode = false
+        selectedNoteIds.removeAll()
+    }
+
+    private func bulkDelete() {
+        Task {
+            do {
+                try DatabaseService.shared.deleteNotes(ids: Array(selectedNoteIds))
+                exitSelectionMode()
+                loadNotes()
+            } catch {
+                print("Bulk delete failed: \(error)")
+            }
+        }
+    }
+
+    private func bulkMove(to folderId: UUID?) {
+        Task {
+            do {
+                try DatabaseService.shared.moveNotesToFolder(noteIds: Array(selectedNoteIds), folderId: folderId)
+                exitSelectionMode()
+                loadNotes()
+            } catch {
+                print("Bulk move failed: \(error)")
+            }
+        }
     }
 
     // MARK: - Subviews
@@ -188,14 +326,23 @@ struct LibraryView: View {
                 ForEach(sortedNotes) { note in
                     NoteRow(
                         note: note,
+                        isSelectionMode: isSelectionMode,
+                        isSelected: selectedNoteIds.contains(note.id),
                         onFavorite: { toggleFavorite(note) },
                         onMove: {
                             selectedNote = note
                             showFolderPicker = true
+                        },
+                        onToggleSelect: {
+                            toggleSelection(note)
                         }
                     )
                     .onTapGesture {
-                        selectedNote = note
+                        if isSelectionMode {
+                            toggleSelection(note)
+                        } else {
+                            selectedNote = note
+                        }
                     }
                 }
             }
@@ -221,11 +368,20 @@ struct LibraryView: View {
                         ForEach(notes) { note in
                             NoteRow(
                                 note: note,
+                                isSelectionMode: isSelectionMode,
+                                isSelected: selectedNoteIds.contains(note.id),
                                 onFavorite: { toggleFavorite(note) },
-                                onMove: { }
+                                onMove: { },
+                                onToggleSelect: {
+                                    toggleSelection(note)
+                                }
                             )
                             .onTapGesture {
-                                selectedNote = note
+                                if isSelectionMode {
+                                    toggleSelection(note)
+                                } else {
+                                    selectedNote = note
+                                }
                             }
                         }
                     }
@@ -307,6 +463,14 @@ struct LibraryView: View {
         // Trigger UI update
     }
 
+    private func toggleSelection(_ note: VoiceNote) {
+        if selectedNoteIds.contains(note.id) {
+            selectedNoteIds.remove(note.id)
+        } else {
+            selectedNoteIds.insert(note.id)
+        }
+    }
+
     private func toggleFavorite(_ note: VoiceNote) {
         guard let idx = notes.firstIndex(where: { $0.id == note.id }) else { return }
         do {
@@ -318,18 +482,32 @@ struct LibraryView: View {
     }
 }
 
-// MARK: - NoteRow with Favorite + Move
+// MARK: - NoteRow with Favorite + Move + Selection
 
 struct NoteRow: View {
     let note: VoiceNote
+    var isSelectionMode: Bool = false
+    var isSelected: Bool = false
     let onFavorite: () -> Void
     let onMove: () -> Void
+    var onToggleSelect: (() -> Void)? = nil
 
     @State private var showMoveSheet = false
 
     var body: some View {
         GlassCard {
             HStack(spacing: 12) {
+                // Selection checkbox or waveform icon
+                if isSelectionMode {
+                    Button {
+                        onToggleSelect?()
+                    } label: {
+                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                            .font(.system(size: 22))
+                            .foregroundColor(isSelected ? DesignTokens.accent : DesignTokens.textSecondary)
+                    }
+                }
+
                 // Waveform icon
                 ZStack {
                     Image(systemName: "waveform")
@@ -371,34 +549,36 @@ struct NoteRow: View {
 
                 Spacer()
 
-                Menu {
-                    Button {
-                        onFavorite()
-                    } label: {
-                        Label(
-                            note.isFavorite ? "Remove from Favorites" : "Add to Favorites",
-                            systemImage: note.isFavorite ? "star.slash" : "star"
-                        )
-                    }
+                if !isSelectionMode {
+                    Menu {
+                        Button {
+                            onFavorite()
+                        } label: {
+                            Label(
+                                note.isFavorite ? "Remove from Favorites" : "Add to Favorites",
+                                systemImage: note.isFavorite ? "star.slash" : "star"
+                            )
+                        }
 
-                    Button {
-                        showMoveSheet = true
-                    } label: {
-                        Label("Move to Folder", systemImage: "folder")
-                    }
+                        Button {
+                            showMoveSheet = true
+                        } label: {
+                            Label("Move to Folder", systemImage: "folder")
+                        }
 
-                    Divider()
+                        Divider()
 
-                    Button(role: .destructive) {
-                        // handled by parent
+                        Button(role: .destructive) {
+                            // handled by parent
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
                     } label: {
-                        Label("Delete", systemImage: "trash")
+                        Image(systemName: "ellipsis")
+                            .font(.system(size: 14))
+                            .foregroundColor(DesignTokens.textSecondary)
+                            .frame(width: 32, height: 32)
                     }
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .font(.system(size: 14))
-                        .foregroundColor(DesignTokens.textSecondary)
-                        .frame(width: 32, height: 32)
                 }
             }
             .padding(12)

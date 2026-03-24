@@ -285,6 +285,141 @@ final class DatabaseService: @unchecked Sendable {
         let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         return parseVoiceNote(row: row, documentsPath: documentsPath)
     }
+
+    // MARK: - Bulk Operations
+
+    /// Delete multiple notes at once.
+    func deleteNotes(ids: [UUID]) throws {
+        guard let db = db else { throw DatabaseError.connectionFailed }
+
+        for noteId in ids {
+            // Delete audio file first
+            if let note = try fetchNote(id: noteId) {
+                try? FileManager.default.removeItem(at: note.audioFileURL)
+            }
+            let target = notes.filter(id == noteId.uuidString)
+            try db.run(target.delete())
+        }
+    }
+
+    /// Move multiple notes to a folder.
+    func moveNotesToFolder(noteIds: [UUID], folderId: UUID?) throws {
+        guard let db = db else { throw DatabaseError.connectionFailed }
+
+        for noteId in noteIds {
+            let target = notes.filter(id == noteId.uuidString)
+            try db.run(target.update(self.folderId <- folderId?.uuidString))
+        }
+    }
+
+    /// Fetch notes by their IDs.
+    func fetchNotes(ids: [UUID]) throws -> [VoiceNote] {
+        guard let db = db else { throw DatabaseError.connectionFailed }
+
+        var results: [VoiceNote] = []
+        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+
+        for noteId in ids {
+            let query = notes.filter(id == noteId.uuidString)
+            if let row = try db.pluck(query) {
+                results.append(parseVoiceNote(row: row, documentsPath: documentsPath))
+            }
+        }
+        return results
+    }
+
+    // MARK: - Advanced Editing
+
+    /// Merge multiple notes into a single new note. Returns the merged VoiceNote.
+    func mergeNotes(_ notesToMerge: [VoiceNote]) throws -> VoiceNote {
+        guard !notesToMerge.isEmpty else { throw DatabaseError.saveFailed }
+
+        let sorted = notesToMerge.sorted { $0.createdAt < $1.createdAt }
+        let combinedTranscription = sorted.map { $0.transcription }.joined(separator: "\n\n")
+        let totalDuration = sorted.reduce(0) { $0 + $1.duration }
+        let earliestDate = sorted.first!.createdAt
+        let mergedTitle = sorted.map { $0.title }.joined(separator: " + ")
+
+        // For audio, we keep a reference to the first note's audio
+        // (true audio merging would require audio processing — we preserve the files)
+        let firstNote = sorted.first!
+
+        let mergedNote = VoiceNote(
+            title: String(mergedTitle.prefix(100)),
+            transcription: combinedTranscription,
+            audioFileURL: firstNote.audioFileURL,
+            duration: totalDuration,
+            createdAt: earliestDate,
+            folderId: firstNote.folderId,
+            isFavorite: sorted.contains { $0.isFavorite },
+            aiSummary: nil,
+            aiKeywords: Array(Set(sorted.flatMap { $0.aiKeywords })).prefix(20).map { $0 },
+            actionItems: sorted.flatMap { $0.actionItems }
+        )
+
+        try saveNote(mergedNote)
+        return mergedNote
+    }
+
+    /// Split a note at a given time point. Returns the second half as a new VoiceNote.
+    func splitNote(id: UUID, splitAtTime: TimeInterval) throws -> VoiceNote? {
+        guard let original = try fetchNote(id: id) else { return nil }
+        guard splitAtTime > 0, splitAtTime < original.duration else { return nil }
+
+        // Split transcription at approximately the time point
+        // (text-based split: we approximate by word position)
+        let words = original.transcription.split(separator: " ")
+        let wordCount = words.count
+        let splitIndex = Int(Double(wordCount) * (splitAtTime / original.duration))
+        let splitIdx = max(1, min(splitIndex, wordCount - 1))
+
+        let firstPart = words.prefix(splitIdx).joined(separator: " ")
+        let secondPart = words.dropFirst(splitIdx).joined(separator: " ")
+
+        // Create the second half as a new note
+        let secondNote = VoiceNote(
+            title: "\(original.title) (Part 2)",
+            transcription: secondPart,
+            audioFileURL: original.audioFileURL,
+            duration: original.duration - splitAtTime,
+            createdAt: original.createdAt.addingTimeInterval(splitAtTime),
+            folderId: original.folderId,
+            isFavorite: false,
+            aiSummary: nil,
+            aiKeywords: [],
+            actionItems: []
+        )
+
+        try saveNote(secondNote)
+
+        // Delete original and create first part as new note
+        try deleteNote(id: original.id)
+
+        let firstNote = VoiceNote(
+            title: "\(original.title) (Part 1)",
+            transcription: firstPart,
+            audioFileURL: original.audioFileURL,
+            duration: splitAtTime,
+            createdAt: original.createdAt,
+            folderId: original.folderId,
+            isFavorite: original.isFavorite,
+            aiSummary: original.aiSummary,
+            aiKeywords: original.aiKeywords,
+            actionItems: original.actionItems
+        )
+
+        try saveNote(firstNote)
+
+        return secondNote
+    }
+
+    /// Update just the transcription text.
+    func updateTranscription(noteId: UUID, newTranscription: String) throws {
+        guard let db = db else { throw DatabaseError.connectionFailed }
+
+        let target = notes.filter(id == noteId.uuidString)
+        try db.run(target.update(transcription <- newTranscription))
+    }
 }
 
 enum DatabaseError: Error {

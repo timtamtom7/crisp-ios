@@ -8,12 +8,17 @@ struct NoteDetailView: View {
 
     @StateObject private var playerService = AudioPlayerService()
     @StateObject private var aiService = AISummaryService()
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
     @State private var showDeleteConfirmation = false
     @State private var showSpeedPicker = false
     @State private var showMoveSheet = false
     @State private var showShareSheet = false
     @State private var editedNote: VoiceNote
     @State private var exportError: String?
+    @State private var showEditTranscription = false
+    @State private var showMergeSheet = false
+    @State private var showSplitSheet = false
+    @State private var showProUpgradePrompt = false
     @Environment(\.dismiss) private var dismiss
 
     private let exportService = ExportService()
@@ -51,6 +56,16 @@ struct NoteDetailView: View {
 
                                 Spacer()
 
+                                if subscriptionManager.tier.isPro {
+                                    Button {
+                                        showEditTranscription = true
+                                    } label: {
+                                        Text("Edit")
+                                            .font(.system(size: 12, weight: .medium))
+                                            .foregroundColor(DesignTokens.accent)
+                                    }
+                                }
+
                                 Button {
                                     UIPasteboard.general.string = editedNote.transcription
                                 } label: {
@@ -64,6 +79,13 @@ struct NoteDetailView: View {
                                 .font(.system(size: 17, weight: .regular))
                                 .foregroundColor(DesignTokens.textPrimary)
                                 .multilineTextAlignment(.leading)
+
+                            if !subscriptionManager.tier.isPro {
+                                ProFeatureBadge(label: "Edit transcription")
+                                    .onTapGesture {
+                                        showProUpgradePrompt = true
+                                    }
+                            }
                         }
                         .padding(16)
                     }
@@ -76,6 +98,48 @@ struct NoteDetailView: View {
                             icon: "exclamationmark.triangle",
                             onDismiss: { exportError = nil }
                         )
+                    }
+
+                    // Advanced editing section
+                    VStack(spacing: 12) {
+                        HStack(spacing: 12) {
+                            // Merge
+                            AdvancedActionButton(
+                                icon: "arrow.triangle.merge",
+                                label: "Merge",
+                                isPro: true,
+                                onTap: {
+                                    if subscriptionManager.tier.isPro {
+                                        showMergeSheet = true
+                                    } else {
+                                        showProUpgradePrompt = true
+                                    }
+                                }
+                            )
+
+                            // Split
+                            AdvancedActionButton(
+                                icon: "scissors",
+                                label: "Split",
+                                isPro: true,
+                                onTap: {
+                                    if subscriptionManager.tier.isPro {
+                                        showSplitSheet = true
+                                    } else {
+                                        showProUpgradePrompt = true
+                                    }
+                                }
+                            )
+                        }
+
+                        if !subscriptionManager.tier.isPro {
+                            TrialBanner(
+                                daysRemaining: subscriptionManager.trialDaysRemaining,
+                                onStartTrial: {
+                                    subscriptionManager.startTrial(days: 3)
+                                }
+                            )
+                        }
                     }
 
                     // Actions
@@ -156,6 +220,41 @@ struct NoteDetailView: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                         exportError = nil
                     }
+                }
+            )
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showEditTranscription) {
+            EditTranscriptionSheet(
+                note: editedNote,
+                onSave: { newText in
+                    saveTranscription(newText)
+                }
+            )
+        }
+        .sheet(isPresented: $showMergeSheet) {
+            MergeNotesSheet(
+                currentNote: editedNote,
+                onMergeComplete: { mergedNote in
+                    onDelete()
+                    dismiss()
+                }
+            )
+        }
+        .sheet(isPresented: $showSplitSheet) {
+            SplitRecordingSheet(
+                note: editedNote,
+                onSplitComplete: {
+                    onDelete()
+                }
+            )
+        }
+        .sheet(isPresented: $showProUpgradePrompt) {
+            ProUpgradeSheet(
+                feature: "advanced editing",
+                onUpgrade: {
+                    // handled by sheet
                 }
             )
             .presentationDetents([.medium])
@@ -342,6 +441,15 @@ struct NoteDetailView: View {
             editedNote.isFavorite.toggle()
         } catch {
             print("Failed to toggle favorite: \(error)")
+        }
+    }
+
+    private func saveTranscription(_ newText: String) {
+        editedNote.transcription = newText
+        do {
+            try DatabaseService.shared.updateNote(editedNote)
+        } catch {
+            print("Failed to save transcription: \(error)")
         }
     }
 
@@ -1019,5 +1127,661 @@ struct ActionButton: View {
             }
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Pro Feature Badge
+
+struct ProFeatureBadge: View {
+    let label: String
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "lock.fill")
+                .font(.system(size: 10))
+                .foregroundColor(DesignTokens.accent)
+
+            Text("Pro: \(label)")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(DesignTokens.accent)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(DesignTokens.accent.opacity(0.1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(DesignTokens.accent.opacity(0.3), lineWidth: 1)
+                )
+        )
+        .padding(.top, 8)
+    }
+}
+
+// MARK: - Trial Banner
+
+struct TrialBanner: View {
+    var daysRemaining: Int?
+    let onStartTrial: () -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "sparkles")
+                .font(.system(size: 16))
+                .foregroundColor(Color(hex: "FFD700"))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Try Pro free")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(DesignTokens.textPrimary)
+
+                if let days = daysRemaining, days > 0 {
+                    Text("\(days) day\(days == 1 ? "" : "s") left in trial")
+                        .font(.system(size: 11))
+                        .foregroundColor(DesignTokens.textSecondary)
+                } else {
+                    Text("Unlock merge, split & edit for 3 days")
+                        .font(.system(size: 11))
+                        .foregroundColor(DesignTokens.textSecondary)
+                }
+            }
+
+            Spacer()
+
+            Button {
+                onStartTrial()
+            } label: {
+                Text("Start Trial")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(DesignTokens.background)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(DesignTokens.accent)
+                    .clipShape(Capsule())
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: DesignTokens.radiusMd)
+                .fill(DesignTokens.accent.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignTokens.radiusMd)
+                        .stroke(DesignTokens.accent.opacity(0.2), lineWidth: 1)
+                )
+        )
+    }
+}
+
+// MARK: - Advanced Action Button
+
+struct AdvancedActionButton: View {
+    let icon: String
+    let label: String
+    var isPro: Bool = true
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            GlassCard {
+                VStack(spacing: 6) {
+                    ZStack {
+                        Image(systemName: icon)
+                            .font(.system(size: 18))
+                            .foregroundColor(DesignTokens.accent)
+
+                        if isPro {
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 8))
+                                .foregroundColor(DesignTokens.textSecondary)
+                                .offset(x: 12, y: -10)
+                        }
+                    }
+
+                    Text(label)
+                        .font(.system(size: 12))
+                        .foregroundColor(DesignTokens.textSecondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Edit Transcription Sheet
+
+struct EditTranscriptionSheet: View {
+    let note: VoiceNote
+    let onSave: (String) -> Void
+
+    @State private var editedText: String = ""
+    @State private var isSaving = false
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                DesignTokens.background
+                    .ignoresSafeArea()
+
+                VStack(spacing: 16) {
+                    Text("Edit the transcription text below. Changes are saved directly to this note.")
+                        .font(.system(size: 13))
+                        .foregroundColor(DesignTokens.textSecondary)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 4)
+
+                    TextEditor(text: $editedText)
+                        .scrollContentBackground(.hidden)
+                        .background(DesignTokens.surface)
+                        .foregroundColor(DesignTokens.textPrimary)
+                        .font(.system(size: 16))
+                        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.radiusMd))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignTokens.radiusMd)
+                                .stroke(DesignTokens.textSecondary.opacity(0.2), lineWidth: 1)
+                        )
+                        .frame(minHeight: 300)
+
+                    if isSaving {
+                        ProgressView()
+                            .tint(DesignTokens.accent)
+                    }
+                }
+                .padding(20)
+            }
+            .navigationTitle("Edit Transcription")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(DesignTokens.background, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .font(.system(size: 15))
+                    .foregroundColor(DesignTokens.textSecondary)
+                }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Save") {
+                        saveChanges()
+                    }
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(DesignTokens.accent)
+                    .disabled(editedText == note.transcription || isSaving)
+                }
+            }
+        }
+        .onAppear {
+            editedText = note.transcription
+        }
+    }
+
+    private func saveChanges() {
+        isSaving = true
+        Task {
+            do {
+                try DatabaseService.shared.updateTranscription(noteId: note.id, newTranscription: editedText)
+                await MainActor.run {
+                    onSave(editedText)
+                    dismiss()
+                }
+            } catch {
+                await MainActor.run {
+                    isSaving = false
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Merge Notes Sheet
+
+struct MergeNotesSheet: View {
+    let currentNote: VoiceNote
+    let onMergeComplete: (VoiceNote) -> Void
+
+    @State private var allNotes: [VoiceNote] = []
+    @State private var selectedNoteIds: Set<UUID> = [UUID()]
+    @State private var isMerging = false
+    @State private var error: String?
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                DesignTokens.background
+                    .ignoresSafeArea()
+
+                VStack(spacing: 16) {
+                    Text("Select one or more notes to merge with this one. All transcriptions will be combined in chronological order.")
+                        .font(.system(size: 13))
+                        .foregroundColor(DesignTokens.textSecondary)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 4)
+
+                    if let error = error {
+                        InlineErrorBanner(
+                            title: "Merge Failed",
+                            message: error,
+                            icon: "exclamationmark.triangle",
+                            onDismiss: { self.error = nil }
+                        )
+                    }
+
+                    ScrollView {
+                        LazyVStack(spacing: 10) {
+                            // Current note (always included)
+                            MergeNoteRow(
+                                note: currentNote,
+                                isSelected: true,
+                                isCurrentNote: true,
+                                onToggle: { }
+                            )
+
+                            ForEach(allNotes.filter { $0.id != currentNote.id }) { note in
+                                MergeNoteRow(
+                                    note: note,
+                                    isSelected: selectedNoteIds.contains(note.id),
+                                    isCurrentNote: false,
+                                    onToggle: {
+                                        if selectedNoteIds.contains(note.id) {
+                                            selectedNoteIds.remove(note.id)
+                                        } else {
+                                            selectedNoteIds.insert(note.id)
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                        .padding(.top, 4)
+                    }
+
+                    Button {
+                        performMerge()
+                    } label: {
+                        HStack(spacing: 6) {
+                            if isMerging {
+                                ProgressView()
+                                    .scaleEffect(0.7)
+                                    .tint(DesignTokens.background)
+                            } else {
+                                Image(systemName: "arrow.triangle.merge")
+                                    .font(.system(size: 14))
+                            }
+                            Text("Merge \(selectedNoteIds.count) Notes")
+                                .font(.system(size: 15, weight: .semibold))
+                        }
+                        .foregroundColor(DesignTokens.background)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 46)
+                        .background(selectedNoteIds.count >= 1 ? DesignTokens.accent : DesignTokens.textSecondary)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .disabled(selectedNoteIds.count < 1 || isMerging)
+                }
+                .padding(20)
+            }
+            .navigationTitle("Merge Recordings")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(DesignTokens.background, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .font(.system(size: 15))
+                    .foregroundColor(DesignTokens.textSecondary)
+                }
+            }
+        }
+        .task {
+            loadNotes()
+            selectedNoteIds = [currentNote.id]
+        }
+    }
+
+    private func loadNotes() {
+        do {
+            allNotes = try DatabaseService.shared.fetchAllNotes()
+        } catch {
+            allNotes = []
+        }
+    }
+
+    private func performMerge() {
+        isMerging = true
+        error = nil
+
+        Task {
+            do {
+                let notesToMerge = allNotes.filter { selectedNoteIds.contains($0.id) }
+                let merged = try DatabaseService.shared.mergeNotes(notesToMerge)
+                await MainActor.run {
+                    onMergeComplete(merged)
+                    dismiss()
+                }
+            } catch {
+                await MainActor.run {
+                    self.error = error.localizedDescription
+                    isMerging = false
+                }
+            }
+        }
+    }
+}
+
+struct MergeNoteRow: View {
+    let note: VoiceNote
+    let isSelected: Bool
+    var isCurrentNote: Bool = false
+    let onToggle: () -> Void
+
+    var body: some View {
+        Button(action: isCurrentNote ? {} : onToggle) {
+            HStack(spacing: 12) {
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 20))
+                    .foregroundColor(isSelected ? DesignTokens.accent : DesignTokens.textSecondary)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(isCurrentNote ? "\(note.title) (this note)" : note.title)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(DesignTokens.textPrimary)
+                        .lineLimit(1)
+
+                    Text("\(note.formattedDate) · \(note.formattedDuration)")
+                        .font(.system(size: 11))
+                        .foregroundColor(DesignTokens.textSecondary)
+                }
+
+                Spacer()
+            }
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: DesignTokens.radiusMd)
+                    .fill(isSelected ? DesignTokens.accent.opacity(0.08) : DesignTokens.surface)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: DesignTokens.radiusMd)
+                            .stroke(isSelected ? DesignTokens.accent.opacity(0.3) : DesignTokens.textSecondary.opacity(0.1), lineWidth: 1)
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(isCurrentNote)
+    }
+}
+
+// MARK: - Split Recording Sheet
+
+struct SplitRecordingSheet: View {
+    let note: VoiceNote
+    let onSplitComplete: () -> Void
+
+    @State private var splitProgress: Double = 0.5
+    @State private var isSplitting = false
+    @State private var error: String?
+    @Environment(\.dismiss) private var dismiss
+
+    var splitTimeText: String {
+        let time = note.duration * splitProgress
+        let minutes = Int(time) / 60
+        let seconds = Int(time) % 60
+        return String(format: "%d:%02d", minutes, seconds)
+    }
+
+    var remainingTimeText: String {
+        let time = note.duration * (1 - splitProgress)
+        let minutes = Int(time) / 60
+        let seconds = Int(time) % 60
+        return String(format: "%d:%02d", minutes, seconds)
+    }
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                DesignTokens.background
+                    .ignoresSafeArea()
+
+                VStack(spacing: 24) {
+                    Text("Drag the divider to choose where to split the recording. Part 1 keeps the original, Part 2 becomes a new note.")
+                        .font(.system(size: 13))
+                        .foregroundColor(DesignTokens.textSecondary)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    // Waveform preview with split marker
+                    ZStack {
+                        // Waveform bars (simplified)
+                        HStack(spacing: 3) {
+                            ForEach(0..<30, id: \.self) { i in
+                                RoundedRectangle(cornerRadius: 2)
+                                    .fill(
+                                        Double(i) / 30.0 < splitProgress
+                                            ? DesignTokens.accent
+                                            : DesignTokens.textSecondary.opacity(0.4)
+                                    )
+                                    .frame(width: 6, height: CGFloat.random(in: 20...60))
+                            }
+                        }
+                        .padding(.horizontal, 16)
+
+                        // Split divider
+                        Rectangle()
+                            .fill(DesignTokens.accent)
+                            .frame(width: 2)
+                            .offset(x: CGFloat(splitProgress - 0.5) * (UIScreen.main.bounds.width - 64))
+                    }
+                    .frame(height: 80)
+                    .background(DesignTokens.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: DesignTokens.radiusMd))
+
+                    // Split position slider
+                    VStack(spacing: 8) {
+                        HStack {
+                            Text(splitTimeText)
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(DesignTokens.accent)
+
+                            Spacer()
+
+                            Text(remainingTimeText)
+                                .font(.system(size: 13))
+                                .foregroundColor(DesignTokens.textSecondary)
+                        }
+
+                        Slider(value: $splitProgress, in: 0.1...0.9)
+                            .tint(DesignTokens.accent)
+                    }
+
+                    // Preview labels
+                    HStack {
+                        VStack(spacing: 4) {
+                            Text("Part 1")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(DesignTokens.textPrimary)
+                            Text(splitTimeText)
+                                .font(.system(size: 11))
+                                .foregroundColor(DesignTokens.textSecondary)
+                        }
+                        .frame(maxWidth: .infinity)
+
+                        Image(systemName: "scissors")
+                            .font(.system(size: 16))
+                            .foregroundColor(DesignTokens.accent)
+
+                        VStack(spacing: 4) {
+                            Text("Part 2")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(DesignTokens.textPrimary)
+                            Text(remainingTimeText)
+                                .font(.system(size: 11))
+                                .foregroundColor(DesignTokens.textSecondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .padding(.horizontal, 16)
+
+                    if let error = error {
+                        InlineErrorBanner(
+                            title: "Split Failed",
+                            message: error,
+                            icon: "exclamationmark.triangle",
+                            onDismiss: { self.error = nil }
+                        )
+                    }
+
+                    Button {
+                        performSplit()
+                    } label: {
+                        HStack(spacing: 6) {
+                            if isSplitting {
+                                ProgressView()
+                                    .scaleEffect(0.7)
+                                    .tint(DesignTokens.background)
+                            } else {
+                                Image(systemName: "scissors")
+                                    .font(.system(size: 14))
+                            }
+                            Text("Split Recording")
+                                .font(.system(size: 15, weight: .semibold))
+                        }
+                        .foregroundColor(DesignTokens.background)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 46)
+                        .background(DesignTokens.accent)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .disabled(isSplitting)
+
+                    Spacer()
+                }
+                .padding(20)
+            }
+            .navigationTitle("Split Recording")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(DesignTokens.background, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .font(.system(size: 15))
+                    .foregroundColor(DesignTokens.textSecondary)
+                }
+            }
+        }
+    }
+
+    private func performSplit() {
+        isSplitting = true
+        error = nil
+
+        Task {
+            do {
+                let splitAt = note.duration * splitProgress
+                _ = try DatabaseService.shared.splitNote(id: note.id, splitAtTime: splitAt)
+                await MainActor.run {
+                    onSplitComplete()
+                    dismiss()
+                }
+            } catch {
+                await MainActor.run {
+                    self.error = error.localizedDescription
+                    isSplitting = false
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Pro Upgrade Sheet
+
+struct ProUpgradeSheet: View {
+    let feature: String
+    let onUpgrade: () -> Void
+
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(spacing: 0) {
+            RoundedRectangle(cornerRadius: 2)
+                .fill(DesignTokens.textSecondary.opacity(0.4))
+                .frame(width: 36, height: 4)
+                .padding(.top, 8)
+
+            VStack(spacing: 20) {
+                // Crown icon
+                ZStack {
+                    Circle()
+                        .fill(DesignTokens.accent.opacity(0.15))
+                        .frame(width: 72, height: 72)
+
+                    Image(systemName: "crown.fill")
+                        .font(.system(size: 28))
+                        .foregroundColor(DesignTokens.accent)
+                }
+                .padding(.top, 8)
+
+                VStack(spacing: 6) {
+                    Text("Unlock \(feature)")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(DesignTokens.textPrimary)
+
+                    Text("Upgrade to Pro to access merge, split, edit and all advanced features.")
+                        .font(.system(size: 14))
+                        .foregroundColor(DesignTokens.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 12)
+                }
+
+                // Features list
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(SubscriptionTier.proOnlyFeatures.prefix(5), id: \.self) { feature in
+                        HStack(spacing: 8) {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(DesignTokens.accent)
+                            Text(feature)
+                                .font(.system(size: 13))
+                                .foregroundColor(DesignTokens.textPrimary)
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 4)
+
+                Button {
+                    // Upgrade flow
+                    dismiss()
+                } label: {
+                    Text("Upgrade to Pro")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(DesignTokens.background)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 46)
+                        .background(DesignTokens.accent)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+
+                Button {
+                    dismiss()
+                } label: {
+                    Text("Maybe Later")
+                        .font(.system(size: 13))
+                        .foregroundColor(DesignTokens.textSecondary)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 28)
+        }
+        .background(DesignTokens.background)
     }
 }

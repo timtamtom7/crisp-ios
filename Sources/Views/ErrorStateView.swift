@@ -8,6 +8,9 @@ enum CrispError: Equatable {
     case recordingTooLongForFreeTier
     case storageFull
     case noRecordings
+    case folderCreationFailed
+    case emptyFolder(String)
+    case noSearchResults(String)
 
     var title: String {
         switch self {
@@ -16,6 +19,9 @@ enum CrispError: Equatable {
         case .recordingTooLongForFreeTier: return "Recording too long"
         case .storageFull: return "Storage full"
         case .noRecordings: return "No recordings yet"
+        case .folderCreationFailed: return "Could not create folder"
+        case .emptyFolder(let name): return "\(name) is empty"
+        case .noSearchResults: return "No results found"
         }
     }
 
@@ -31,6 +37,12 @@ enum CrispError: Equatable {
             return "Your device is running low on storage. Free up some space to continue recording."
         case .noRecordings:
             return "Your transcribed voice notes will appear here. Tap the record button to capture your first thought."
+        case .folderCreationFailed:
+            return "Could not create folder. Please try again."
+        case .emptyFolder(let name):
+            return "'\(name)' is empty. Move recordings into this folder to keep them organized."
+        case .noSearchResults(let query):
+            return "No recordings found for \"\(query)\". Try different keywords."
         }
     }
 
@@ -41,6 +53,9 @@ enum CrispError: Equatable {
         case .recordingTooLongForFreeTier: return "clock.badge.exclamationmark.fill"
         case .storageFull: return "externaldrive.fill.badge.xmark"
         case .noRecordings: return "waveform.badge.plus"
+        case .folderCreationFailed: return "folder.badge.xmark"
+        case .emptyFolder: return "folder"
+        case .noSearchResults: return "magnifyingglass"
         }
     }
 
@@ -125,6 +140,9 @@ struct ErrorStateView: View {
         case .recordingTooLongForFreeTier: return .orange
         case .storageFull: return .red
         case .noRecordings: return DesignTokens.accent
+        case .folderCreationFailed: return .red
+        case .emptyFolder: return DesignTokens.accent
+        case .noSearchResults: return DesignTokens.accent
         }
     }
 }

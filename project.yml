@@ -38,3 +38,34 @@ targets:
       path: Resources/Crisp.entitlements
       properties:
         com.apple.security.app-sandbox: true
+        com.apple.security.application-groups:
+          - group.com.crisp.app
+
+  CrispWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - CrispWidget
+    settings:
+      base:
+        INFOPLIST_FILE: CrispWidget/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.crisp.app.widget
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "6.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGN_IDENTITY: ""
+        CODE_SIGNING_REQUIRED: "NO"
+        CODE_SIGNING_ALLOWED: "NO"
+        SKIP_INSTALL: "YES"
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"
+    entitlements:
+      path: CrispWidget/CrispWidget.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.application-groups:
+          - group.com.crisp.app
+    dependencies:
+      - target: Crisp
+        embed: false

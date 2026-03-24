@@ -7,6 +7,8 @@ struct VoiceNote: Identifiable, Equatable, Hashable {
     let audioFileURL: URL
     let duration: TimeInterval
     let createdAt: Date
+    var folderId: UUID?
+    var isFavorite: Bool
 
     init(
         id: UUID = UUID(),
@@ -14,7 +16,9 @@ struct VoiceNote: Identifiable, Equatable, Hashable {
         transcription: String,
         audioFileURL: URL,
         duration: TimeInterval,
-        createdAt: Date = Date()
+        createdAt: Date = Date(),
+        folderId: UUID? = nil,
+        isFavorite: Bool = false
     ) {
         self.id = id
         self.title = title
@@ -22,6 +26,8 @@ struct VoiceNote: Identifiable, Equatable, Hashable {
         self.audioFileURL = audioFileURL
         self.duration = duration
         self.createdAt = createdAt
+        self.folderId = folderId
+        self.isFavorite = isFavorite
     }
 
     var formattedDuration: String {

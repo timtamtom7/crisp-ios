@@ -122,6 +122,49 @@ struct SettingsView: View {
                             }
                         }
 
+                        // Crisp Links section
+                        SettingsSection(title: "Crisp Links") {
+                            GlassCard {
+                                VStack(spacing: 12) {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "link")
+                                            .font(.system(size: 20))
+                                            .foregroundColor(DesignTokens.accent)
+                                            .frame(width: 40, height: 40)
+                                            .background(
+                                                Circle()
+                                                    .fill(DesignTokens.accent.opacity(0.15))
+                                            )
+
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("Ephemeral Voice Links")
+                                                .font(.system(size: 15, weight: .medium))
+                                                .foregroundColor(DesignTokens.textPrimary)
+
+                                            Text("Share recordings as temporary links")
+                                                .font(.system(size: 12))
+                                                .foregroundColor(DesignTokens.textSecondary)
+                                        }
+
+                                        Spacer()
+                                    }
+
+                                    Button {
+                                        // Opens Crisp Links management
+                                    } label: {
+                                        Text("Manage Crisp Links")
+                                            .font(.system(size: 13, weight: .semibold))
+                                            .foregroundColor(DesignTokens.background)
+                                            .frame(maxWidth: .infinity)
+                                            .frame(height: 36)
+                                            .background(DesignTokens.accent)
+                                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    }
+                                }
+                                .padding(16)
+                            }
+                        }
+
                         // Language setting
                         SettingsSection(title: "Speech Recognition") {
                             GlassCard {

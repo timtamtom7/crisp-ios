@@ -170,6 +170,16 @@ struct NoteDetailView: View {
                         )
                     }
 
+                    // Crisp Links — Pro feature for sharing as ephemeral links
+                    VStack(spacing: 10) {
+                        Text("Share")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(DesignTokens.textSecondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        CrispLinkCard(note: editedNote)
+                    }
+
                     Spacer(minLength: 40)
                 }
                 .padding(.horizontal, 16)

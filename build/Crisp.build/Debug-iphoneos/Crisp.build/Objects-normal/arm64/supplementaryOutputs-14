@@ -1,0 +1,23 @@
+{
+  "/Users/mauriello/Dev/crisp-ios/Sources/App/DesignTokens.swift" : {
+    "const-values" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/DesignTokens.swiftconstvalues",
+    "dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/DesignTokens.d",
+    "diagnostics" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/DesignTokens.dia",
+    "object" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/DesignTokens.o",
+    "swift-dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/DesignTokens.swiftdeps"
+  },
+  "/Users/mauriello/Dev/crisp-ios/Sources/Services/CrispLinkService.swift" : {
+    "const-values" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/CrispLinkService.swiftconstvalues",
+    "dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/CrispLinkService.d",
+    "diagnostics" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/CrispLinkService.dia",
+    "object" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/CrispLinkService.o",
+    "swift-dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/CrispLinkService.swiftdeps"
+  },
+  "/Users/mauriello/Dev/crisp-ios/Sources/Services/DatabaseService.swift" : {
+    "const-values" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/DatabaseService.swiftconstvalues",
+    "dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/DatabaseService.d",
+    "diagnostics" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/DatabaseService.dia",
+    "object" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/DatabaseService.o",
+    "swift-dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/DatabaseService.swiftdeps"
+  }
+}

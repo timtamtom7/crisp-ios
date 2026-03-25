@@ -1,0 +1,23 @@
+{
+  "/Users/mauriello/Dev/crisp-ios/Sources/App/AppState.swift" : {
+    "const-values" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/AppState.swiftconstvalues",
+    "dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/AppState.d",
+    "diagnostics" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/AppState.dia",
+    "object" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/AppState.o",
+    "swift-dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/AppState.swiftdeps"
+  },
+  "/Users/mauriello/Dev/crisp-ios/Sources/Models/AppSettings.swift" : {
+    "const-values" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/AppSettings.swiftconstvalues",
+    "dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/AppSettings.d",
+    "diagnostics" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/AppSettings.dia",
+    "object" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/AppSettings.o",
+    "swift-dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/AppSettings.swiftdeps"
+  },
+  "/Users/mauriello/Dev/crisp-ios/Sources/Services/AISummaryService.swift" : {
+    "const-values" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/AISummaryService.swiftconstvalues",
+    "dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/AISummaryService.d",
+    "diagnostics" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/AISummaryService.dia",
+    "object" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/AISummaryService.o",
+    "swift-dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/AISummaryService.swiftdeps"
+  }
+}

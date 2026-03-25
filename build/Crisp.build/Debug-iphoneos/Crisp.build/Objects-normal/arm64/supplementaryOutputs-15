@@ -1,0 +1,23 @@
+{
+  "/Users/mauriello/Dev/crisp-ios/Sources/Models/Folder.swift" : {
+    "const-values" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/Folder.swiftconstvalues",
+    "dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/Folder.d",
+    "diagnostics" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/Folder.dia",
+    "object" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/Folder.o",
+    "swift-dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/Folder.swiftdeps"
+  },
+  "/Users/mauriello/Dev/crisp-ios/Sources/Services/ExportService.swift" : {
+    "const-values" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/ExportService.swiftconstvalues",
+    "dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/ExportService.d",
+    "diagnostics" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/ExportService.dia",
+    "object" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/ExportService.o",
+    "swift-dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/ExportService.swiftdeps"
+  },
+  "/Users/mauriello/Dev/crisp-ios/Sources/Views/ErrorStateView.swift" : {
+    "const-values" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/ErrorStateView.swiftconstvalues",
+    "dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/ErrorStateView.d",
+    "diagnostics" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/ErrorStateView.dia",
+    "object" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/ErrorStateView.o",
+    "swift-dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/ErrorStateView.swiftdeps"
+  }
+}

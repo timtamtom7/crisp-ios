@@ -1,0 +1,23 @@
+{
+  "/Users/mauriello/Dev/crisp-ios/Sources/Components/GlassCard.swift" : {
+    "const-values" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/GlassCard.swiftconstvalues",
+    "dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/GlassCard.d",
+    "diagnostics" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/GlassCard.dia",
+    "object" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/GlassCard.o",
+    "swift-dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/GlassCard.swiftdeps"
+  },
+  "/Users/mauriello/Dev/crisp-ios/Sources/Views/FolderPickerView.swift" : {
+    "const-values" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/FolderPickerView.swiftconstvalues",
+    "dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/FolderPickerView.d",
+    "diagnostics" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/FolderPickerView.dia",
+    "object" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/FolderPickerView.o",
+    "swift-dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/FolderPickerView.swiftdeps"
+  },
+  "/Users/mauriello/Dev/crisp-ios/Sources/Views/LibraryView.swift" : {
+    "const-values" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/LibraryView.swiftconstvalues",
+    "dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/LibraryView.d",
+    "diagnostics" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/LibraryView.dia",
+    "object" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/LibraryView.o",
+    "swift-dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/LibraryView.swiftdeps"
+  }
+}

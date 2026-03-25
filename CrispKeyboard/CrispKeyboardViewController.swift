@@ -127,8 +127,8 @@ class CrispKeyboardViewController: UIInputViewController {
         let barCount = 30
         let spacing: CGFloat = 3
         let totalSpacing = spacing * CGFloat(barCount - 1)
-        let barWidth: CGFloat = (UIScreen.main.bounds.width - 40 - totalSpacing) / CGFloat(barCount)
-        let containerWidth = waveformContainer.bounds.width
+        let screenWidth = view.window?.windowScene?.screen.bounds.width ?? 375
+        let barWidth: CGFloat = (screenWidth - 40 - totalSpacing) / CGFloat(barCount)
 
         for i in 0..<barCount {
             let bar = UIView()
@@ -325,7 +325,9 @@ class CrispKeyboardViewController: UIInputViewController {
 
     private func animateBars() {
         barAnimationTimer = Timer.scheduledTimer(withTimeInterval: 0.12, repeats: true) { [weak self] _ in
-            self?.updateBarHeights()
+            Task { @MainActor in
+                self?.updateBarHeights()
+            }
         }
     }
 

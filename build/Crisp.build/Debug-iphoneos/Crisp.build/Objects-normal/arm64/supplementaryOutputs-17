@@ -1,0 +1,23 @@
+{
+  "/Users/mauriello/Dev/crisp-ios/Sources/Views/NoteDetailView.swift" : {
+    "const-values" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/NoteDetailView.swiftconstvalues",
+    "dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/NoteDetailView.d",
+    "diagnostics" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/NoteDetailView.dia",
+    "object" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/NoteDetailView.o",
+    "swift-dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/NoteDetailView.swiftdeps"
+  },
+  "/Users/mauriello/Dev/crisp-ios/Sources/Views/OnboardingView.swift" : {
+    "const-values" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/OnboardingView.swiftconstvalues",
+    "dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/OnboardingView.d",
+    "diagnostics" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/OnboardingView.dia",
+    "object" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/OnboardingView.o",
+    "swift-dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/OnboardingView.swiftdeps"
+  },
+  "/Users/mauriello/Dev/crisp-ios/Sources/Views/PricingView.swift" : {
+    "const-values" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/PricingView.swiftconstvalues",
+    "dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/PricingView.d",
+    "diagnostics" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/PricingView.dia",
+    "object" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/PricingView.o",
+    "swift-dependencies" : "/Users/mauriello/Dev/crisp-ios/build/Crisp.build/Debug-iphoneos/Crisp.build/Objects-normal/arm64/PricingView.swiftdeps"
+  }
+}

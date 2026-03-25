@@ -7,6 +7,10 @@ struct CrispWidgetEntry: TimelineEntry {
     let date: Date
     let notes: [WidgetNote]
     let isEmpty: Bool
+    // R11: Stats for large widget
+    let totalRecordingsThisWeek: Int
+    let totalDurationThisWeek: String
+    let totalRecordings: Int
 }
 
 struct WidgetNote: Identifiable {
@@ -14,6 +18,13 @@ struct WidgetNote: Identifiable {
     let title: String
     let date: String
     let duration: String
+}
+
+// R11: Data structure for widget stats (shared with main app)
+struct WidgetStatsData: Codable {
+    let totalRecordingsThisWeek: Int
+    let totalDurationThisWeekSeconds: Double
+    let totalRecordings: Int
 }
 
 // MARK: - Timeline Provider
@@ -27,7 +38,10 @@ struct CrispWidgetProvider: TimelineProvider {
                 WidgetNote(id: UUID(), title: "Shopping list", date: "Yesterday", duration: "0:45"),
                 WidgetNote(id: UUID(), title: "Ideas", date: "Mon", duration: "1:12")
             ],
-            isEmpty: false
+            isEmpty: false,
+            totalRecordingsThisWeek: 12,
+            totalDurationThisWeek: "45:30",
+            totalRecordings: 87
         )
     }
 
@@ -48,24 +62,20 @@ struct CrispWidgetProvider: TimelineProvider {
         guard let containerURL = FileManager.default.containerURL(
             forSecurityApplicationGroupIdentifier: "group.com.crisp.app"
         ) else {
-            return CrispWidgetEntry(date: Date(), notes: [], isEmpty: true)
+            return emptyEntry()
         }
 
         let dbPath = containerURL.appendingPathComponent("crisp.sqlite3")
         guard FileManager.default.fileExists(atPath: dbPath.path) else {
-            return CrispWidgetEntry(date: Date(), notes: [], isEmpty: true)
+            return emptyEntry()
         }
 
         // Read last 3 notes using a lightweight JSON file written by the main app
         let notesFile = containerURL.appendingPathComponent("widget_notes.json")
         guard let data = try? Data(contentsOf: notesFile),
               let widgetNotes = try? JSONDecoder().decode([WidgetNoteData].self, from: data) else {
-            return CrispWidgetEntry(date: Date(), notes: [], isEmpty: true)
+            return emptyEntry()
         }
-
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .short
-        dateFormatter.timeStyle = .short
 
         let relativeFormatter = RelativeDateTimeFormatter()
         relativeFormatter.unitsStyle = .abbreviated
@@ -81,7 +91,37 @@ struct CrispWidgetProvider: TimelineProvider {
             )
         }
 
-        return CrispWidgetEntry(date: Date(), notes: Array(notes), isEmpty: notes.isEmpty)
+        // R11: Read stats from shared file
+        let statsFile = containerURL.appendingPathComponent("widget_stats.json")
+        let (weekCount, weekDuration, totalCount) = loadStats(from: statsFile)
+
+        return CrispWidgetEntry(
+            date: Date(),
+            notes: Array(notes),
+            isEmpty: notes.isEmpty,
+            totalRecordingsThisWeek: weekCount,
+            totalDurationThisWeek: formatDuration(weekDuration),
+            totalRecordings: totalCount
+        )
+    }
+
+    private func emptyEntry() -> CrispWidgetEntry {
+        CrispWidgetEntry(
+            date: Date(),
+            notes: [],
+            isEmpty: true,
+            totalRecordingsThisWeek: 0,
+            totalDurationThisWeek: "0:00",
+            totalRecordings: 0
+        )
+    }
+
+    private func loadStats(from url: URL) -> (weekCount: Int, weekDuration: Double, totalCount: Int) {
+        guard let data = try? Data(contentsOf: url),
+              let stats = try? JSONDecoder().decode(WidgetStatsData.self, from: data) else {
+            return (0, 0, 0)
+        }
+        return (stats.totalRecordingsThisWeek, stats.totalDurationThisWeekSeconds, stats.totalRecordings)
     }
 
     private func formatDuration(_ duration: TimeInterval) -> String {
@@ -110,6 +150,8 @@ struct CrispWidgetEntryView: View {
             SmallWidgetView(entry: entry)
         case .systemMedium:
             MediumWidgetView(entry: entry)
+        case .systemLarge:
+            LargeWidgetView(entry: entry)
         default:
             SmallWidgetView(entry: entry)
         }
@@ -287,6 +329,130 @@ struct MediumWidgetView: View {
     }
 }
 
+// R11: Large widget — shows recording stats
+struct LargeWidgetView: View {
+    let entry: CrispWidgetEntry
+
+    var body: some View {
+        ZStack {
+            ContainerRelativeShape()
+                .fill(
+                    LinearGradient(
+                        colors: [Color(hex: "141416"), Color(hex: "0d0d0e")],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+
+            VStack(alignment: .leading, spacing: 12) {
+                // Header
+                HStack {
+                    HStack(spacing: 6) {
+                        Image(systemName: "waveform")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(Color(hex: "c8a97e"))
+
+                        Text("Crisp")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+
+                    Spacer()
+
+                    Text("Your Week")
+                        .font(.system(size: 12))
+                        .foregroundColor(Color(hex: "8b8b8e"))
+                }
+
+                // Stats row
+                HStack(spacing: 16) {
+                    VStack(spacing: 4) {
+                        Text("\(entry.totalRecordingsThisWeek)")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(.white)
+                        Text("Recordings")
+                            .font(.system(size: 11))
+                            .foregroundColor(Color(hex: "8b8b8e"))
+                    }
+
+                    Divider()
+                        .frame(height: 40)
+                        .background(Color(hex: "333333"))
+
+                    VStack(spacing: 4) {
+                        Text(entry.totalDurationThisWeek)
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(.white)
+                        Text("Total Time")
+                            .font(.system(size: 11))
+                            .foregroundColor(Color(hex: "8b8b8e"))
+                    }
+
+                    Spacer()
+
+                    VStack(spacing: 4) {
+                        Text("\(entry.totalRecordings)")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(Color(hex: "c8a97e"))
+                        Text("All Time")
+                            .font(.system(size: 11))
+                            .foregroundColor(Color(hex: "8b8b8e"))
+                    }
+                }
+
+                Divider()
+                    .background(Color(hex: "2a2a2a"))
+
+                // Recent recordings
+                if entry.notes.isEmpty {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        VStack(spacing: 6) {
+                            Image(systemName: "mic.fill")
+                                .font(.system(size: 24))
+                                .foregroundColor(Color(hex: "333333"))
+                            Text("No recordings yet")
+                                .font(.system(size: 13))
+                                .foregroundColor(Color(hex: "8b8b8e"))
+                        }
+                        Spacer()
+                    }
+                    Spacer()
+                } else {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Recent")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(Color(hex: "8b8b8e"))
+
+                        ForEach(entry.notes.prefix(3)) { note in
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(note.title)
+                                        .font(.system(size: 13, weight: .medium))
+                                        .foregroundColor(.white)
+                                        .lineLimit(1)
+                                    Text(note.date)
+                                        .font(.system(size: 11))
+                                        .foregroundColor(Color(hex: "8b8b8e"))
+                                }
+                                Spacer()
+                                Text(note.duration)
+                                    .font(.system(size: 12))
+                                    .foregroundColor(Color(hex: "c8a97e"))
+                            }
+                        }
+                    }
+
+                    Spacer()
+                }
+            }
+            .padding(16)
+        }
+        .widgetURL(URL(string: "crisp://record"))
+    }
+}
+
 // MARK: - Widget Configuration
 
 @main
@@ -300,7 +466,7 @@ struct CrispWidget: Widget {
         }
         .configurationDisplayName("Crisp")
         .description("Quick access to your latest recordings.")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
 

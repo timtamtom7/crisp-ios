@@ -135,11 +135,11 @@ targets:
     type: application
     platform: macOS
     sources:
-      - Sources
-      - Resources
+      - path: CrispMac/Sources
+      - path: CrispMac/Resources
     settings:
       base:
-        INFOPLIST_FILE: Resources/Info.plist
+        INFOPLIST_FILE: CrispMac/Resources/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.crisp.app.macos
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
@@ -152,11 +152,12 @@ targets:
         CODE_SIGNING_ALLOWED: "NO"
         ENABLE_HARDENED_RUNTIME: "NO"
         COMBINE_HIDPI_IMAGES: "YES"
+        MACOSX_DEPLOYMENT_TARGET: "15.0"
     dependencies:
       - package: SQLite.swift
         product: SQLite
     entitlements:
-      path: Resources/Crisp.entitlements
+      path: CrispMac/Resources/CrispMac.entitlements
       properties:
         com.apple.security.app-sandbox: true
         com.apple.security.application-groups:

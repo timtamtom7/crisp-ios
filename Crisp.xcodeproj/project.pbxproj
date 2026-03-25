@@ -7,82 +7,48 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		025C4F0C89F1FF059F29C5FA /* MacContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04755C4D29287413BB2B4C21 /* MacContentView.swift */; };
 		036BA6B3A084EB9FF0629A8D /* RecordButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03B8ACFE9E69E0F51B99624 /* RecordButton.swift */; };
-		03A81BAFC8A749B37F178590 /* iCloudSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1D66DF4FF71DE8AAC4FFE3 /* iCloudSyncService.swift */; };
-		08C87D16C5B2915119E76A85 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 782E7EF318E64CA03EF44FFF /* Subscription.swift */; };
-		0E034521B3C3F26549B47D41 /* AudioRecorderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 902A411B283751D230393758 /* AudioRecorderService.swift */; };
 		1050462416915673B610C21D /* AudioRecorderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 902A411B283751D230393758 /* AudioRecorderService.swift */; };
 		1168EE596792524B5D7E9433 /* BulkExportSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456B1AADBC93B7700A4E905A /* BulkExportSheet.swift */; };
-		12CA73EB582FD2AB020F2DEC /* ErrorStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE34F57ADF2973C277B957A2 /* ErrorStateView.swift */; };
 		14BF3ABB4845AB00E8DD5722 /* WatchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F79D0916CF620B0DF54184 /* WatchContentView.swift */; };
+		1681B5E84CF749E475E922EC /* CrispMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB81A31DCE21139E8B30DE23 /* CrispMacApp.swift */; };
 		184DF44C692F503F86377425 /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEDCB5020F288C1FEDE83B29 /* TranscriptionService.swift */; };
 		19636E14F33372B2345C2841 /* PricingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39735268B867017C66F734B /* PricingView.swift */; };
-		1ED4D780BA771D7B69C8AF97 /* AIInsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E3EDF91D943F0D6DCE9A65 /* AIInsightsView.swift */; };
 		245C2D615F034BEFB5DBC252 /* SCREENSHOTS.md in Resources */ = {isa = PBXBuildFile; fileRef = 3DE03B59BBC8788BD5D56867 /* SCREENSHOTS.md */; };
-		275C12E8C08F267B2C857F2F /* DatabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C73F580CF09D9DD73BB653A /* DatabaseService.swift */; };
-		2A582A26A1F81E6196C8D66D /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A39C45D026B59D6507B47403 /* GlassCard.swift */; };
 		2C219802EB4D9D5562B60742 /* ExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0311A2273611C6ED00F1DE7B /* ExportService.swift */; };
-		2E3E483F90A4B5AA84B9EA34 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A33D6F44F7090788A92DD3 /* OnboardingView.swift */; };
 		2E68996950660EB1AD9C6886 /* CrispLinkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B86EC61764E75D285E7D4BD /* CrispLinkService.swift */; };
-		35DE6357CCA35BFA971C03BF /* WaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41138C5DEA7310262C2F589F /* WaveformView.swift */; };
 		3E261987C1081F08F52B4B85 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 782E7EF318E64CA03EF44FFF /* Subscription.swift */; };
 		44CB9F67475E22565D497D92 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AD74035CEEA2ED72B4D2E9C /* ContentView.swift */; };
-		4632882BCE850D0A0DEE3948 /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEDCB5020F288C1FEDE83B29 /* TranscriptionService.swift */; };
 		4D6938F5C3EB19A669D7EF24 /* AISummaryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CE4C80B42D4F82F8BD99BF1 /* AISummaryService.swift */; };
 		543830C033281B173C36A3ED /* CrispApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896E88BE2DE3A2BE0AEDF699 /* CrispApp.swift */; };
-		5810B346C1C02C0E7D7FADDB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AD74035CEEA2ED72B4D2E9C /* ContentView.swift */; };
 		5AA679956D2326667AC4945C /* VoiceNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2DB66214A67FF0E90BEB46 /* VoiceNote.swift */; };
-		5AEF778823736846A17A267D /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E37C129BC72CC445F94C4859 /* LibraryView.swift */; };
 		5C2A857DE1080C61FB005CB7 /* iCloudSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1D66DF4FF71DE8AAC4FFE3 /* iCloudSyncService.swift */; };
-		62BCD972FE502ACCEFC63E1B /* AudioPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66E0C08DB5563025090E5329 /* AudioPlayerService.swift */; };
-		6712D6AD525F3F1722E8B80D /* FolderPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5C8EC78BB4E0EADA9A206BB /* FolderPickerView.swift */; };
-		675B2BBAB27AFFCD151A4B91 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3127FBFDA8E786AA00B7D7A7 /* AppState.swift */; };
-		67E8496F8BEB69785F9C4913 /* CommunityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7FA5512AE190C09761CE6B7 /* CommunityView.swift */; };
 		68D4C5829D4079C121E772BB /* ErrorStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE34F57ADF2973C277B957A2 /* ErrorStateView.swift */; };
 		691DC937A8D37965D1CF3DE8 /* FolderPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5C8EC78BB4E0EADA9A206BB /* FolderPickerView.swift */; };
 		706B41A8420C4A36740EFC81 /* CrispKeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 327693348E2B02EB2764720F /* CrispKeyboardViewController.swift */; };
 		71C8138A79DACAF865EF70FE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88CE1F08058B81E3591472A7 /* Assets.xcassets */; };
 		7A357BB4D7D4FDE0B8958A14 /* AppStore_en-US.txt in Resources */ = {isa = PBXBuildFile; fileRef = 9BA305C5A19C9E1F5CAD5AC6 /* AppStore_en-US.txt */; };
 		7BC8BDF2247993AC959C9EAE /* DatabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C73F580CF09D9DD73BB653A /* DatabaseService.swift */; };
-		7DB553D17CEA0305E7457DC1 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7EC4C27B4A92155B47BAF3 /* AppSettings.swift */; };
 		8318CFD028BC24FC1E88E90A /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF55BAD4F15E80ED5CF0F932 /* Folder.swift */; };
 		85AF92B73DE0818363286746 /* AppStoreAssets.md in Resources */ = {isa = PBXBuildFile; fileRef = 0520C77A929D2360ECC653C1 /* AppStoreAssets.md */; };
 		86D1795FC5F010A511EB67A2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3FF645684A363987B26068BB /* Assets.xcassets */; };
-		889452F19A935106FE20E93A /* ExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0311A2273611C6ED00F1DE7B /* ExportService.swift */; };
 		89045282A495AA4524DECACD /* AudioPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66E0C08DB5563025090E5329 /* AudioPlayerService.swift */; };
 		8C62CFC39BED23EFE501DF05 /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = EE1D7B2A4B13C80A10B0E15B /* SQLite */; };
 		8D63C906C7291272A9AE7B96 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3127FBFDA8E786AA00B7D7A7 /* AppState.swift */; };
-		906DA54F9DFA9A5F22866335 /* SCREENSHOTS.md in Resources */ = {isa = PBXBuildFile; fileRef = 3DE03B59BBC8788BD5D56867 /* SCREENSHOTS.md */; };
-		9B40C111BC7739A7FA176607 /* CaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19063C7BDC9206405876B453 /* CaptureView.swift */; };
-		9C998FB25D052CCEE054B069 /* RecordButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D03B8ACFE9E69E0F51B99624 /* RecordButton.swift */; };
 		9DB546B139B36578C56FF5A1 /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 64550783B75B45FEDDA69AE6 /* SQLite */; };
 		9FC5E378C349606DD3C57424 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E37C129BC72CC445F94C4859 /* LibraryView.swift */; };
 		A0EAC1EB3DE0650C2E783263 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6D6F0FE3BB0AA6B239C9BA /* SettingsView.swift */; };
-		A60F8FE656E9F741D5752789 /* AppStore_en-US.txt in Resources */ = {isa = PBXBuildFile; fileRef = 9BA305C5A19C9E1F5CAD5AC6 /* AppStore_en-US.txt */; };
-		A6D187789DDF9AE84703465D /* CrispLinkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B86EC61764E75D285E7D4BD /* CrispLinkService.swift */; };
-		A71A8419363559E54FB56B9B /* SettingsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66FF7539A962FCA035EECFE /* SettingsService.swift */; };
 		A86C8BE5DA5D19C502A513BB /* CommunityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7FA5512AE190C09761CE6B7 /* CommunityView.swift */; };
 		AD6A24323E50EDF38A4EA76D /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A33D6F44F7090788A92DD3 /* OnboardingView.swift */; };
 		B14BD7053885D7D5A0BAFCA7 /* AIInsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E3EDF91D943F0D6DCE9A65 /* AIInsightsView.swift */; };
 		BA63AFCB9FB8B49984438444 /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A39C45D026B59D6507B47403 /* GlassCard.swift */; };
 		C38726CF1912F9DD0B4AA749 /* WaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41138C5DEA7310262C2F589F /* WaveformView.swift */; };
-		C9D8BEBB56241594F0603255 /* CrispApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896E88BE2DE3A2BE0AEDF699 /* CrispApp.swift */; };
 		CA4005E186461D7E172AC9D4 /* NoteDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2FBC88B6BE32412AD6E64BF /* NoteDetailView.swift */; };
 		CEA0B1E6EDA4C41A1B818AB0 /* SettingsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B66FF7539A962FCA035EECFE /* SettingsService.swift */; };
-		D1AA51EFD90B009D458B8D91 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88CE1F08058B81E3591472A7 /* Assets.xcassets */; };
 		D3CF15124ACE7E7EC4658120 /* CrispWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F4F249EB0B18EBE001A9BA /* CrispWatchApp.swift */; };
-		D5BC9687B5A7590263DAFA37 /* AppStoreAssets.md in Resources */ = {isa = PBXBuildFile; fileRef = 0520C77A929D2360ECC653C1 /* AppStoreAssets.md */; };
-		D8CC45524D621547CB1BA2DA /* AISummaryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CE4C80B42D4F82F8BD99BF1 /* AISummaryService.swift */; };
-		D90C180265EEAAC64184FD64 /* BulkExportSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456B1AADBC93B7700A4E905A /* BulkExportSheet.swift */; };
-		DAF91F6F2B03CD1FE2CA48F1 /* NoteDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2FBC88B6BE32412AD6E64BF /* NoteDetailView.swift */; };
-		DE299AEE9B035B802EC240CA /* PROMOTION.md in Resources */ = {isa = PBXBuildFile; fileRef = 627036324591DDC602808D1E /* PROMOTION.md */; };
 		E2339A67FD03F943A62DEF00 /* CrispWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91175398F4E3DA4A6640B5E /* CrispWidget.swift */; };
 		E97B0E572BA1A132167692EA /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B47A4214550B855A9D1EB58 /* DesignTokens.swift */; };
-		EB0A0B2559B6E9BBCA46A3D7 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6D6F0FE3BB0AA6B239C9BA /* SettingsView.swift */; };
-		F3D5C08256A0FEF5E2B635F8 /* VoiceNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2DB66214A67FF0E90BEB46 /* VoiceNote.swift */; };
-		F461E4C829425186C9A5BBD2 /* PricingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39735268B867017C66F734B /* PricingView.swift */; };
-		F6AECAD3E498BBD8DBC4350F /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B47A4214550B855A9D1EB58 /* DesignTokens.swift */; };
-		F6EE5868DA48706341D5BA1B /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF55BAD4F15E80ED5CF0F932 /* Folder.swift */; };
 		F85639C1063708A1D103E3C0 /* PROMOTION.md in Resources */ = {isa = PBXBuildFile; fileRef = 627036324591DDC602808D1E /* PROMOTION.md */; };
 		F95E03D9A80A2147315AB7EE /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7EC4C27B4A92155B47BAF3 /* AppSettings.swift */; };
 		FD459621EF021FFC35F34216 /* CaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19063C7BDC9206405876B453 /* CaptureView.swift */; };
@@ -116,6 +82,7 @@
 		00956C1CBCF7012066931A53 /* CrispWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = CrispWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		009E69793A31FC766F940C56 /* CrispKeyboard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CrispKeyboard.entitlements; sourceTree = "<group>"; };
 		0311A2273611C6ED00F1DE7B /* ExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportService.swift; sourceTree = "<group>"; };
+		04755C4D29287413BB2B4C21 /* MacContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacContentView.swift; sourceTree = "<group>"; };
 		0520C77A929D2360ECC653C1 /* AppStoreAssets.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AppStoreAssets.md; sourceTree = "<group>"; };
 		0B47A4214550B855A9D1EB58 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
 		19063C7BDC9206405876B453 /* CaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureView.swift; sourceTree = "<group>"; };
@@ -130,6 +97,7 @@
 		3FF645684A363987B26068BB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		41138C5DEA7310262C2F589F /* WaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformView.swift; sourceTree = "<group>"; };
 		428C80064479FC6E133CE861 /* Crisp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Crisp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4367343FB8EE4A815BBE37F7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		456B1AADBC93B7700A4E905A /* BulkExportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BulkExportSheet.swift; sourceTree = "<group>"; };
 		5AD74035CEEA2ED72B4D2E9C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		5C4E2E9B518C8D886C35FEF0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -137,6 +105,7 @@
 		627036324591DDC602808D1E /* PROMOTION.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PROMOTION.md; sourceTree = "<group>"; };
 		66E0C08DB5563025090E5329 /* AudioPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerService.swift; sourceTree = "<group>"; };
 		6777FFC058D3B90CD4E69571 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		6A35122AB3F08FF6FD13617D /* CrispMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CrispMac.entitlements; sourceTree = "<group>"; };
 		6E1D66DF4FF71DE8AAC4FFE3 /* iCloudSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iCloudSyncService.swift; sourceTree = "<group>"; };
 		75F4F249EB0B18EBE001A9BA /* CrispWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrispWatchApp.swift; sourceTree = "<group>"; };
 		782E7EF318E64CA03EF44FFF /* Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
@@ -149,6 +118,7 @@
 		A2FBC88B6BE32412AD6E64BF /* NoteDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDetailView.swift; sourceTree = "<group>"; };
 		A39C45D026B59D6507B47403 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
 		A5C8EC78BB4E0EADA9A206BB /* FolderPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderPickerView.swift; sourceTree = "<group>"; };
+		AB81A31DCE21139E8B30DE23 /* CrispMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrispMacApp.swift; sourceTree = "<group>"; };
 		AC7EC4C27B4A92155B47BAF3 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		B66FF7539A962FCA035EECFE /* SettingsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsService.swift; sourceTree = "<group>"; };
 		B7FA5512AE190C09761CE6B7 /* CommunityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityView.swift; sourceTree = "<group>"; };
@@ -272,6 +242,15 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		7C7D681119EB8A49E48B198A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				3FF645684A363987B26068BB /* Assets.xcassets */,
+			);
+			name = Resources;
+			path = CrispWatch/Resources;
+			sourceTree = "<group>";
+		};
 		921E1ADA85FE309ED562F4C6 /* AppStore */ = {
 			isa = PBXGroup;
 			children = (
@@ -293,6 +272,16 @@
 			sourceTree = "<group>";
 		};
 		B8D6BF875946B261086492A4 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				AB81A31DCE21139E8B30DE23 /* CrispMacApp.swift */,
+				04755C4D29287413BB2B4C21 /* MacContentView.swift */,
+			);
+			name = Sources;
+			path = CrispMac/Sources;
+			sourceTree = "<group>";
+		};
+		D66505D8CB947C2AFEF10ECD /* Sources */ = {
 			isa = PBXGroup;
 			children = (
 				75F4F249EB0B18EBE001A9BA /* CrispWatchApp.swift */,
@@ -332,10 +321,11 @@
 		F06DE2A210F8BA9B2FDC46DA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				3FF645684A363987B26068BB /* Assets.xcassets */,
+				6A35122AB3F08FF6FD13617D /* CrispMac.entitlements */,
+				4367343FB8EE4A815BBE37F7 /* Info.plist */,
 			);
 			name = Resources;
-			path = CrispWatch/Resources;
+			path = CrispMac/Resources;
 			sourceTree = "<group>";
 		};
 		F271DF779E8E4FB86C23455B = {
@@ -345,8 +335,10 @@
 				A25B26B63A3525B27AAAC235 /* CrispWidget */,
 				7A450D8A08AABC274230758C /* Resources */,
 				F06DE2A210F8BA9B2FDC46DA /* Resources */,
+				7C7D681119EB8A49E48B198A /* Resources */,
 				79B44F830905971C125D81D7 /* Sources */,
 				B8D6BF875946B261086492A4 /* Sources */,
+				D66505D8CB947C2AFEF10ECD /* Sources */,
 				469898404A1541E4A55DB6BC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -375,7 +367,6 @@
 			buildConfigurationList = A6E403089F88A220DC1A66D3 /* Build configuration list for PBXNativeTarget "CrispMac" */;
 			buildPhases = (
 				8DAE73CA57958B0E26537D99 /* Sources */,
-				4BF58DCE9406AD676D934E8B /* Resources */,
 				0C737FBF0ADC668E81429A65 /* Frameworks */,
 			);
 			buildRules = (
@@ -494,18 +485,6 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		4BF58DCE9406AD676D934E8B /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D5BC9687B5A7590263DAFA37 /* AppStoreAssets.md in Resources */,
-				A60F8FE656E9F741D5752789 /* AppStore_en-US.txt in Resources */,
-				D1AA51EFD90B009D458B8D91 /* Assets.xcassets in Resources */,
-				DE299AEE9B035B802EC240CA /* PROMOTION.md in Resources */,
-				906DA54F9DFA9A5F22866335 /* SCREENSHOTS.md in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		8432FAC39B072DD8DBDC6CA7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -550,37 +529,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1ED4D780BA771D7B69C8AF97 /* AIInsightsView.swift in Sources */,
-				D8CC45524D621547CB1BA2DA /* AISummaryService.swift in Sources */,
-				7DB553D17CEA0305E7457DC1 /* AppSettings.swift in Sources */,
-				675B2BBAB27AFFCD151A4B91 /* AppState.swift in Sources */,
-				62BCD972FE502ACCEFC63E1B /* AudioPlayerService.swift in Sources */,
-				0E034521B3C3F26549B47D41 /* AudioRecorderService.swift in Sources */,
-				D90C180265EEAAC64184FD64 /* BulkExportSheet.swift in Sources */,
-				9B40C111BC7739A7FA176607 /* CaptureView.swift in Sources */,
-				67E8496F8BEB69785F9C4913 /* CommunityView.swift in Sources */,
-				5810B346C1C02C0E7D7FADDB /* ContentView.swift in Sources */,
-				C9D8BEBB56241594F0603255 /* CrispApp.swift in Sources */,
-				A6D187789DDF9AE84703465D /* CrispLinkService.swift in Sources */,
-				275C12E8C08F267B2C857F2F /* DatabaseService.swift in Sources */,
-				F6AECAD3E498BBD8DBC4350F /* DesignTokens.swift in Sources */,
-				12CA73EB582FD2AB020F2DEC /* ErrorStateView.swift in Sources */,
-				889452F19A935106FE20E93A /* ExportService.swift in Sources */,
-				F6EE5868DA48706341D5BA1B /* Folder.swift in Sources */,
-				6712D6AD525F3F1722E8B80D /* FolderPickerView.swift in Sources */,
-				2A582A26A1F81E6196C8D66D /* GlassCard.swift in Sources */,
-				5AEF778823736846A17A267D /* LibraryView.swift in Sources */,
-				DAF91F6F2B03CD1FE2CA48F1 /* NoteDetailView.swift in Sources */,
-				2E3E483F90A4B5AA84B9EA34 /* OnboardingView.swift in Sources */,
-				F461E4C829425186C9A5BBD2 /* PricingView.swift in Sources */,
-				9C998FB25D052CCEE054B069 /* RecordButton.swift in Sources */,
-				A71A8419363559E54FB56B9B /* SettingsService.swift in Sources */,
-				EB0A0B2559B6E9BBCA46A3D7 /* SettingsView.swift in Sources */,
-				08C87D16C5B2915119E76A85 /* Subscription.swift in Sources */,
-				4632882BCE850D0A0DEE3948 /* TranscriptionService.swift in Sources */,
-				F3D5C08256A0FEF5E2B635F8 /* VoiceNote.swift in Sources */,
-				35DE6357CCA35BFA971C03BF /* WaveformView.swift in Sources */,
-				03A81BAFC8A749B37F178590 /* iCloudSyncService.swift in Sources */,
+				1681B5E84CF749E475E922EC /* CrispMacApp.swift in Sources */,
+				025C4F0C89F1FF059F29C5FA /* MacContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -733,17 +683,18 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGNING_REQUIRED = NO;
-				CODE_SIGN_ENTITLEMENTS = Resources/Crisp.entitlements;
+				CODE_SIGN_ENTITLEMENTS = CrispMac/Resources/CrispMac.entitlements;
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = NO;
-				INFOPLIST_FILE = Resources/Info.plist;
+				INFOPLIST_FILE = CrispMac/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.crisp.app.macos;
 				SDKROOT = macosx;
@@ -969,17 +920,18 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGNING_REQUIRED = NO;
-				CODE_SIGN_ENTITLEMENTS = Resources/Crisp.entitlements;
+				CODE_SIGN_ENTITLEMENTS = CrispMac/Resources/CrispMac.entitlements;
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = NO;
-				INFOPLIST_FILE = Resources/Info.plist;
+				INFOPLIST_FILE = CrispMac/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.crisp.app.macos;
 				SDKROOT = macosx;

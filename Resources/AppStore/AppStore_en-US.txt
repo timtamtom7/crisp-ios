@@ -1,0 +1,40 @@
+# Crisp — App Store Listing
+
+## App Name
+Crisp
+
+## Subtitle
+Voice Recorder with AI
+
+## Short Description (150 characters)
+The smart voice recorder that transcribes, summarizes, and organizes your recordings with AI.
+
+## Full Description (500 characters)
+Crisp transforms your voice recordings into organized, searchable notes with AI-powered transcription and summaries.
+
+KEY FEATURES:
+• One-tap voice recording with high-quality audio
+• Automatic AI transcription with speaker detection
+• Smart summaries with keywords and action items
+• Topic classification (Meeting, Personal, Idea, Tutorial, News, Health, Work)
+• Sentiment analysis for emotional tone insights
+• Organize with folders and favorites
+• Crisp Links — share recordings as ephemeral links
+• Cross-device sync via iCloud
+• Beautiful dark mode design
+
+PREMIUM FEATURES:
+• Unlimited recordings
+• Extended recording duration (up to 2 hours)
+• Priority AI transcription
+• Advanced editing tools
+• Community sharing
+
+## Keywords
+voice, recorder, recording, transcription, ai, notes, audio, meeting, notes, summarizer, speech, memo, dictation, podcast, interview, Crisp, transcribe
+
+## Category
+Productivity
+
+## Age Rating
+4+

@@ -14,6 +14,12 @@ struct VoiceNote: Identifiable, Equatable, Hashable, Codable {
     var aiSummary: String?
     var aiKeywords: [String]
     var actionItems: [String]
+    var topic: String?
+    var sentiment: Double?
+    var detectedEntities: [String]
+    var speakingPace: Double?
+    var folderSuggestion: String?
+
     var hasAISummary: Bool { aiSummary != nil && !aiSummary!.isEmpty }
 
     init(
@@ -27,7 +33,12 @@ struct VoiceNote: Identifiable, Equatable, Hashable, Codable {
         isFavorite: Bool = false,
         aiSummary: String? = nil,
         aiKeywords: [String] = [],
-        actionItems: [String] = []
+        actionItems: [String] = [],
+        topic: String? = nil,
+        sentiment: Double? = nil,
+        detectedEntities: [String] = [],
+        speakingPace: Double? = nil,
+        folderSuggestion: String? = nil
     ) {
         self.id = id
         self.title = title
@@ -40,6 +51,11 @@ struct VoiceNote: Identifiable, Equatable, Hashable, Codable {
         self.aiSummary = aiSummary
         self.aiKeywords = aiKeywords
         self.actionItems = actionItems
+        self.topic = topic
+        self.sentiment = sentiment
+        self.detectedEntities = detectedEntities
+        self.speakingPace = speakingPace
+        self.folderSuggestion = folderSuggestion
     }
 
     var formattedDuration: String {
@@ -58,7 +74,7 @@ struct VoiceNote: Identifiable, Equatable, Hashable, Codable {
     // Codable conformance for audioFileURL (encode/decode just the filename)
     enum CodingKeys: String, CodingKey {
         case id, title, transcription, audioFileName, duration, createdAt, folderId, isFavorite
-        case aiSummary, aiKeywords, actionItems
+        case aiSummary, aiKeywords, actionItems, topic, sentiment, detectedEntities, speakingPace, folderSuggestion
     }
 
     init(from decoder: Decoder) throws {
@@ -76,6 +92,11 @@ struct VoiceNote: Identifiable, Equatable, Hashable, Codable {
         aiSummary = try container.decodeIfPresent(String.self, forKey: .aiSummary)
         aiKeywords = try container.decodeIfPresent([String].self, forKey: .aiKeywords) ?? []
         actionItems = try container.decodeIfPresent([String].self, forKey: .actionItems) ?? []
+        topic = try container.decodeIfPresent(String.self, forKey: .topic)
+        sentiment = try container.decodeIfPresent(Double.self, forKey: .sentiment)
+        detectedEntities = try container.decodeIfPresent([String].self, forKey: .detectedEntities) ?? []
+        speakingPace = try container.decodeIfPresent(Double.self, forKey: .speakingPace)
+        folderSuggestion = try container.decodeIfPresent(String.self, forKey: .folderSuggestion)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -91,5 +112,10 @@ struct VoiceNote: Identifiable, Equatable, Hashable, Codable {
         try container.encodeIfPresent(aiSummary, forKey: .aiSummary)
         try container.encode(aiKeywords, forKey: .aiKeywords)
         try container.encode(actionItems, forKey: .actionItems)
+        try container.encodeIfPresent(topic, forKey: .topic)
+        try container.encodeIfPresent(sentiment, forKey: .sentiment)
+        try container.encode(detectedEntities, forKey: .detectedEntities)
+        try container.encodeIfPresent(speakingPace, forKey: .speakingPace)
+        try container.encodeIfPresent(folderSuggestion, forKey: .folderSuggestion)
     }
 }

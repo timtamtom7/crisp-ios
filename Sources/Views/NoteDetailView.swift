@@ -46,6 +46,21 @@ struct NoteDetailView: View {
                     // AI Summary card
                     aiSummaryCard
 
+                    // AI Insights (topic, sentiment, entities, speaking pace)
+                    if editedNote.topic != nil || editedNote.sentiment != nil || !editedNote.detectedEntities.isEmpty {
+                        let insightsResult = AnalysisResult(
+                            summary: editedNote.aiSummary ?? "",
+                            keywords: editedNote.aiKeywords,
+                            actionItems: editedNote.actionItems,
+                            topic: editedNote.topic,
+                            sentiment: editedNote.sentiment,
+                            entities: editedNote.detectedEntities,
+                            speakingPace: editedNote.speakingPace,
+                            folderSuggestion: editedNote.folderSuggestion
+                        )
+                        AIInsightsView(analysis: insightsResult)
+                    }
+
                     // Transcription
                     GlassCard {
                         VStack(alignment: .leading, spacing: 12) {
@@ -430,11 +445,19 @@ struct NoteDetailView: View {
         guard !editedNote.transcription.isEmpty else { return }
 
         Task {
-            let result = await aiService.analyze(transcription: editedNote.transcription)
+            let result = await aiService.analyze(
+                transcription: editedNote.transcription,
+                audioDuration: editedNote.duration
+            )
             var updated = editedNote
             updated.aiSummary = result.summary
             updated.aiKeywords = result.keywords
             updated.actionItems = result.actionItems
+            updated.topic = result.topic
+            updated.sentiment = result.sentiment
+            updated.detectedEntities = result.entities
+            updated.speakingPace = result.speakingPace
+            updated.folderSuggestion = result.folderSuggestion
 
             do {
                 try DatabaseService.shared.updateNote(updated)

@@ -528,10 +528,30 @@ struct NoteRow: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(note.title)
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundColor(DesignTokens.textPrimary)
-                        .lineLimit(1)
+                    HStack(spacing: 6) {
+                        Text(note.title)
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(DesignTokens.textPrimary)
+                            .lineLimit(1)
+
+                        // Topic badge
+                        if let topic = note.topic {
+                            Text(topic)
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(topicColor(for: topic))
+                                .clipShape(Capsule())
+                        }
+
+                        // Sentiment indicator
+                        if let sentiment = note.sentiment {
+                            Image(systemName: sentimentIcon(for: sentiment))
+                                .font(.system(size: 10))
+                                .foregroundColor(sentimentColor(for: sentiment))
+                        }
+                    }
 
                     HStack(spacing: 8) {
                         Text(note.formattedDate)
@@ -544,6 +564,14 @@ struct NoteRow: View {
                         Text(note.formattedDuration)
                             .font(.system(size: 12))
                             .foregroundColor(DesignTokens.textSecondary)
+
+                        if let wpm = note.speakingPace {
+                            Text("·")
+                                .foregroundColor(DesignTokens.textSecondary)
+                            Text("\(Int(wpm)) wpm")
+                                .font(.system(size: 12))
+                                .foregroundColor(DesignTokens.textSecondary)
+                        }
                     }
                 }
 
@@ -596,6 +624,33 @@ struct NoteRow: View {
                 }
             )
         }
+    }
+
+    // MARK: - AI Helpers
+
+    private func topicColor(for topic: String) -> Color {
+        switch topic {
+        case "Meeting": return .blue
+        case "Personal": return .pink
+        case "Idea": return .yellow
+        case "Tutorial": return .green
+        case "News": return .orange
+        case "Health": return .red
+        case "Work": return .purple
+        default: return DesignTokens.accent
+        }
+    }
+
+    private func sentimentIcon(for sentiment: Double) -> String {
+        if sentiment > 0.3 { return "face.smiling.fill" }
+        if sentiment < -0.3 { return "face.smiling.inverse" }
+        return "face.dashed.fill"
+    }
+
+    private func sentimentColor(for sentiment: Double) -> Color {
+        if sentiment > 0.3 { return .green }
+        if sentiment < -0.3 { return .red }
+        return DesignTokens.textSecondary
     }
 }
 

@@ -2,13 +2,17 @@ import Foundation
 import NaturalLanguage
 
 /// On-device AI service using Apple's NaturalLanguage framework for summarization,
-/// keyword extraction, and action item detection.
+/// keyword extraction, sentiment analysis, topic classification, entity extraction,
+/// and action item detection.
 @MainActor
 final class AISummaryService: ObservableObject {
     @Published private(set) var isAnalyzing = false
     @Published var errorMessage: String?
 
-    /// Analyzes a transcription and returns a summary with keywords and action items.
+    /// All known topic labels for classification.
+    static let topicLabels = ["Meeting", "Personal", "Idea", "Tutorial", "News", "Health", "Work", "Other"]
+
+    /// Analyzes a transcription and returns comprehensive AI insights.
     func analyze(transcription: String) async -> AnalysisResult {
         isAnalyzing = true
         errorMessage = nil
@@ -19,18 +23,49 @@ final class AISummaryService: ObservableObject {
             return AnalysisResult(
                 summary: "No transcription available to analyze.",
                 keywords: [],
-                actionItems: []
+                actionItems: [],
+                topic: nil,
+                sentiment: nil,
+                entities: [],
+                speakingPace: nil,
+                folderSuggestion: nil
             )
         }
 
         let summary = generateSummary(text: transcription)
         let keywords = extractKeywords(text: transcription)
         let actionItems = extractActionItems(text: transcription)
+        let topic = classifyTopic(text: transcription)
+        let sentiment = analyzeSentiment(text: transcription)
+        let entities = extractEntities(text: transcription)
+        let folderSuggestion = suggestFolder(for: topic)
 
         return AnalysisResult(
             summary: summary,
             keywords: keywords,
-            actionItems: actionItems
+            actionItems: actionItems,
+            topic: topic,
+            sentiment: sentiment,
+            entities: entities,
+            speakingPace: nil,
+            folderSuggestion: folderSuggestion
+        )
+    }
+
+    /// Analyze with speaking pace (requires audio duration for WPM calculation).
+    func analyze(transcription: String, audioDuration: TimeInterval) async -> AnalysisResult {
+        var result = await analyze(transcription: transcription)
+        let wordCount = countWords(in: transcription)
+        let wpm = audioDuration > 0 ? Double(wordCount) / (audioDuration / 60.0) : nil
+        return AnalysisResult(
+            summary: result.summary,
+            keywords: result.keywords,
+            actionItems: result.actionItems,
+            topic: result.topic,
+            sentiment: result.sentiment,
+            entities: result.entities,
+            speakingPace: wpm,
+            folderSuggestion: result.folderSuggestion
         )
     }
 
@@ -186,6 +221,115 @@ final class AISummaryService: ObservableObject {
         }
         return words
     }
+
+    // MARK: - Topic Classification
+
+    /// Classifies the transcription into a topic category using keyword matching.
+    private func classifyTopic(text: String) -> String? {
+        let lowercased = text.lowercased()
+
+        let topicKeywords: [String: [String]] = [
+            "Meeting": ["meeting", "agenda", "discuss", "team", "conference", "call", "sync", "standup", "retro", "review", "client", "presentation", "deck", "stakeholder", "roadmap", "sprint", "scrum"],
+            "Personal": ["personal", "family", "friend", "home", "weekend", "vacation", "birthday", "holiday", "party", "dinner", "lunch", "coffee", "movie", "book", "hobby"],
+            "Idea": ["idea", "concept", "brainstorm", "thought", "wonder", "maybe", "what if", "imagine", "dream", "vision", "creative", "innovation"],
+            "Tutorial": ["learn", "tutorial", "how to", "step by step", "guide", "teach", "explain", "example", "demo", "course", "lesson", "workshop"],
+            "News": ["news", "update", "announcement", "report", "breaking", "headline", "journalism", "article", "story", "coverage"],
+            "Health": ["health", "doctor", "medical", "symptom", "medicine", "exercise", "workout", "gym", "sleep", "diet", "nutrition", "mental health", "therapy", "appointment"],
+            "Work": ["deadline", "project", "deliverable", "task", "boss", "colleague", "office", "email", "report", "quarterly", "revenue", "budget", "strategy", "hiring", "interview", "performance"]
+        ]
+
+        var bestTopic: String?
+        var bestScore = 0
+
+        for (topic, keywords) in topicKeywords {
+            let score = keywords.filter { lowercased.contains($0) }.count
+            if score > bestScore {
+                bestScore = score
+                bestTopic = topic
+            }
+        }
+
+        return bestScore > 0 ? bestTopic : "Other"
+    }
+
+    // MARK: - Sentiment Analysis
+
+    /// Analyzes the overall sentiment of the transcription (-1.0 = negative, +1.0 = positive).
+    private func analyzeSentiment(text: String) -> Double? {
+        let tagger = NLTagger(tagSchemes: [.sentimentScore])
+        tagger.string = text
+
+        var totalScore: Double = 0
+        var count = 0
+
+        tagger.enumerateTags(in: text.startIndex..<text.endIndex, unit: .paragraph, scheme: .sentimentScore, options: [.omitWhitespace]) { tag, _ in
+            if let tag = tag, let score = Double(tag.rawValue) {
+                totalScore += score
+                count += 1
+            }
+            return true
+        }
+
+        guard count > 0 else { return nil }
+        return totalScore / Double(count)
+    }
+
+    // MARK: - Entity Extraction
+
+    /// Extracts person names, places, and organizations from the transcription.
+    private func extractEntities(text: String) -> [String] {
+        let tagger = NLTagger(tagSchemes: [.nameType])
+        tagger.string = text
+
+        var entities: [String] = []
+        let options: NLTagger.Options = [.omitWhitespace, .omitPunctuation, .joinNames]
+
+        tagger.enumerateTags(in: text.startIndex..<text.endIndex, unit: .word, scheme: .nameType, options: options) { tag, range in
+            if let tag = tag, tag != .otherWord {
+                let entity = String(text[range])
+                if entity.count > 2 {
+                    entities.append(entity)
+                }
+            }
+            return true
+        }
+
+        // Deduplicate and limit
+        return Array(Set(entities)).prefix(10).map { $0 }
+    }
+
+    // MARK: - Folder Suggestion
+
+    /// Suggests a folder name based on the detected topic.
+    private func suggestFolder(for topic: String?) -> String? {
+        guard let topic = topic else { return nil }
+
+        let folderMap: [String: String] = [
+            "Meeting": "Work Meetings",
+            "Personal": "Personal",
+            "Idea": "Ideas",
+            "Tutorial": "Learning",
+            "News": "News & Updates",
+            "Health": "Health",
+            "Work": "Work",
+            "Other": "General"
+        ]
+
+        return folderMap[topic]
+    }
+
+    // MARK: - Word Count
+
+    private func countWords(in text: String) -> Int {
+        let tagger = NLTagger(tagSchemes: [.tokenType])
+        tagger.string = text
+        var count = 0
+        tagger.enumerateTags(in: text.startIndex..<text.endIndex, unit: .word, scheme: .tokenType, options: [.omitWhitespace]) { tag, _ in
+            if tag == .word { count += 1 }
+            return true
+        }
+        return count
+    }
 }
 
 // MARK: - Result Types
@@ -194,4 +338,9 @@ struct AnalysisResult {
     let summary: String
     let keywords: [String]
     let actionItems: [String]
+    var topic: String?
+    var sentiment: Double?
+    var entities: [String]
+    var speakingPace: Double? // words per minute
+    var folderSuggestion: String?
 }

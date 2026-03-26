@@ -1,5 +1,6 @@
 import Foundation
 import SQLite
+import AVFoundation
 
 final class DatabaseService: @unchecked Sendable {
     static let shared = DatabaseService()
@@ -367,7 +368,6 @@ final class DatabaseService: @unchecked Sendable {
         guard splitAtTime > 0, splitAtTime < original.duration else { return nil }
 
         // Split transcription at approximately the time point
-        // (text-based split: we approximate by word position)
         let words = original.transcription.split(separator: " ")
         let wordCount = words.count
         let splitIndex = Int(Double(wordCount) * (splitAtTime / original.duration))
@@ -410,7 +410,53 @@ final class DatabaseService: @unchecked Sendable {
 
         try saveNote(firstNote)
 
+        // Actually split the audio file: create a new file for the second part
+        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let secondPartFileName = "crisp_\(UUID().uuidString).m4a"
+        let secondPartURL = documentsPath.appendingPathComponent(secondPartFileName)
+
+        do {
+            let sourceFile = try AVAudioFile(forReading: original.audioFileURL)
+            let format = sourceFile.processingFormat
+            let sampleRate = format.sampleRate
+            let splitFrame = AVAudioFramePosition(splitAtTime * sampleRate)
+            let totalFrames = sourceFile.length
+
+            guard splitFrame < totalFrames else {
+                throw DatabaseError.splitFailed
+            }
+
+            let framesToWrite = totalFrames - splitFrame
+
+            // Create the second part audio file
+            let secondPartFile = try AVAudioFile(forWriting: secondPartURL, settings: sourceFile.fileFormat.settings)
+
+            // Read and write the second part
+            sourceFile.framePosition = splitFrame
+            guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(framesToWrite)) else {
+                throw DatabaseError.splitFailed
+            }
+
+            try sourceFile.read(into: buffer)
+            try secondPartFile.write(from: buffer)
+
+            // Update the second note to point to the new audio file
+            try updateNoteAudioURL(noteId: secondNote.id, newAudioURL: secondPartURL)
+        } catch {
+            // Clean up on failure
+            try? FileManager.default.removeItem(at: secondPartURL)
+            throw DatabaseError.splitFailed
+        }
+
         return secondNote
+    }
+
+    /// Update just the audio file URL for a note.
+    private func updateNoteAudioURL(noteId: UUID, newAudioURL: URL) throws {
+        guard let db = db else { throw DatabaseError.connectionFailed }
+        let newFileName = newAudioURL.lastPathComponent
+        let target = notes.filter(id == noteId.uuidString)
+        try db.run(target.update(audioFileName <- newFileName))
     }
 
     /// Update just the transcription text.
@@ -425,4 +471,5 @@ final class DatabaseService: @unchecked Sendable {
 enum DatabaseError: Error {
     case connectionFailed
     case saveFailed
+    case splitFailed
 }

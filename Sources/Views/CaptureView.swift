@@ -134,6 +134,12 @@ struct CaptureView: View {
         } message: {
             Text(viewModel.permissionAlertMessage)
         }
+        .onChange(of: viewModel.showPaywall) { _, newValue in
+            if newValue {
+                showPricing = true
+                viewModel.showPaywall = false
+            }
+        }
     }
 }
 
@@ -152,6 +158,7 @@ final class CaptureViewModel: ObservableObject {
     @Published var showPermissionAlert = false
     @Published var permissionAlertMessage = ""
     @Published var currentQuality: RecordingQuality = .high
+    @Published var showPaywall: Bool = false
 
     private let recorderService = AudioRecorderService()
     private let transcriptionService = TranscriptionService()
@@ -205,6 +212,11 @@ final class CaptureViewModel: ObservableObject {
 
     func toggleRecording() {
         if state == .idle {
+            // Enforce free tier recording limit
+            if !SubscriptionManager.shared.canRecord {
+                showPaywall = true
+                return
+            }
             startRecording()
         } else {
             stopRecording()

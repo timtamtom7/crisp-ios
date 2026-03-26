@@ -269,6 +269,13 @@ struct iPadLibraryList: View {
         case .dateOldest: return notes.sorted { $0.createdAt < $1.createdAt }
         case .durationLongest: return notes.sorted { $0.duration > $1.duration }
         case .durationShortest: return notes.sorted { $0.duration < $1.duration }
+        case .favoritesFirst:
+            return notes.sorted { note1, note2 in
+                if note1.isFavorite != note2.isFavorite {
+                    return note1.isFavorite
+                }
+                return note1.createdAt > note2.createdAt
+            }
         }
     }
 

@@ -9,6 +9,10 @@ final class AudioRecorderService: ObservableObject, @unchecked Sendable {
     @Published private(set) var isRecording = false
     @Published private(set) var audioLevel: Float = 0.0
 
+    /// The quality setting applied when starting a new recording.
+    /// Defaults to `.high`. Set this before calling `startRecording()`.
+    var recordingQuality: RecordingQuality = .high
+
     func startRecording() throws {
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.playAndRecord, mode: .measurement, options: .duckOthers)
@@ -27,7 +31,7 @@ final class AudioRecorderService: ObservableObject, @unchecked Sendable {
             AVFormatIDKey: kAudioFormatMPEG4AAC,
             AVSampleRateKey: recordingFormat.sampleRate,
             AVNumberOfChannelsKey: 1,
-            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+            AVEncoderAudioQualityKey: recordingQuality.audioQuality.rawValue
         ])
 
         let capturedAudioFile = audioFile

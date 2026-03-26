@@ -5,6 +5,7 @@ enum SortOption: String, CaseIterable {
     case dateOldest = "Oldest"
     case durationLongest = "Longest"
     case durationShortest = "Shortest"
+    case favoritesFirst = "Favorites First"
 }
 
 enum LibrarySection: String, CaseIterable {
@@ -29,6 +30,9 @@ struct LibraryView: View {
 
     // Sorting
     @State private var sortOption: SortOption = .dateNewest
+
+    // Topic filter (for AI-detected topics)
+    @State private var selectedTopic: String?
 
     // UI state
     @State private var showSortMenu = false
@@ -59,6 +63,11 @@ struct LibraryView: View {
                     // Section tabs
                     sectionTabs
 
+                    // Topic filter chips (only on All section, no folder selected)
+                    if selectedSection == .all && selectedFolderId == nil {
+                        topicFilterChips
+                    }
+
                     // Folder chips (when on Folders section)
                     if selectedSection == .folders {
                         folderChips
@@ -79,6 +88,8 @@ struct LibraryView: View {
                         EmptyFolderView(folderName: selectedFolderName)
                     } else if notes.isEmpty {
                         EmptyLibraryView()
+                    } else if selectedTopic != nil && sortedNotes.isEmpty {
+                        EmptyTopicFilterView(topic: selectedTopic ?? "")
                     } else {
                         notesList
                     }
@@ -286,6 +297,9 @@ struct LibraryView: View {
                 Button {
                     withAnimation(DesignTokens.easeOut) {
                         selectedSection = section
+                        if section != .all {
+                            selectedTopic = nil
+                        }
                     }
                 } label: {
                     Text(section.rawValue)
@@ -317,6 +331,56 @@ struct LibraryView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
+        }
+    }
+
+    /// Horizontal scrolling chip bar for filtering notes by AI-detected topic.
+    private var topicFilterChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                // "All" chip
+                TopicChip(
+                    label: "All",
+                    isSelected: selectedTopic == nil,
+                    color: DesignTokens.accent,
+                    onTap: {
+                        withAnimation(DesignTokens.easeOut) {
+                            selectedTopic = nil
+                        }
+                    }
+                )
+                .accessibilityLabel("Filter: All topics")
+
+                ForEach(availableTopics, id: \.self) { topic in
+                    TopicChip(
+                        label: topic,
+                        isSelected: selectedTopic == topic,
+                        color: topicColor(for: topic),
+                        onTap: {
+                            withAnimation(DesignTokens.easeOut) {
+                                selectedTopic = selectedTopic == topic ? nil : topic
+                            }
+                        }
+                    )
+                    .accessibilityLabel("Filter: \(topic)")
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+        }
+    }
+
+    /// Returns a color for a given AI-detected topic string.
+    private func topicColor(for topic: String) -> Color {
+        switch topic {
+        case "Meeting": return .blue
+        case "Personal": return .pink
+        case "Idea": return .yellow
+        case "Tutorial": return .green
+        case "News": return .orange
+        case "Health": return .red
+        case "Work": return .purple
+        default: return DesignTokens.accent
         }
     }
 
@@ -395,12 +459,38 @@ struct LibraryView: View {
     // MARK: - Computed
 
     private var sortedNotes: [VoiceNote] {
+        // Apply topic filter first
+        let base = topicFilteredNotes
+
         switch sortOption {
-        case .dateNewest: return notes.sorted { $0.createdAt > $1.createdAt }
-        case .dateOldest: return notes.sorted { $0.createdAt < $1.createdAt }
-        case .durationLongest: return notes.sorted { $0.duration > $1.duration }
-        case .durationShortest: return notes.sorted { $0.duration < $1.duration }
+        case .dateNewest:
+            return base.sorted { $0.createdAt > $1.createdAt }
+        case .dateOldest:
+            return base.sorted { $0.createdAt < $1.createdAt }
+        case .durationLongest:
+            return base.sorted { $0.duration > $1.duration }
+        case .durationShortest:
+            return base.sorted { $0.duration < $1.duration }
+        case .favoritesFirst:
+            return base.sorted { note1, note2 in
+                if note1.isFavorite != note2.isFavorite {
+                    return note1.isFavorite
+                }
+                return note1.createdAt > note2.createdAt
+            }
         }
+    }
+
+    /// Notes filtered by the selected AI-detected topic.
+    private var topicFilteredNotes: [VoiceNote] {
+        guard let topic = selectedTopic else { return notes }
+        return notes.filter { $0.topic == topic }
+    }
+
+    /// Unique AI-detected topics present in the current notes set.
+    private var availableTopics: [String] {
+        let topics = notes.compactMap { $0.topic }
+        return Array(Set(topics)).sorted()
     }
 
     private var selectedFolderName: String {
@@ -683,6 +773,29 @@ struct FolderChip: View {
     }
 }
 
+/// A pill-shaped chip for filtering notes by AI-detected topic.
+struct TopicChip: View {
+    let label: String
+    let isSelected: Bool
+    let color: Color
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            Text(label)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(isSelected ? DesignTokens.background : color)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 7)
+                .background(
+                    Capsule()
+                        .fill(isSelected ? color : color.opacity(0.15))
+                )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 // MARK: - Empty States
 
 struct EmptyLibraryView: View {
@@ -828,6 +941,42 @@ struct NoSearchResultsView: View {
 
             Spacer()
         }
+    }
+}
+
+/// Empty state shown when a topic filter returns no results.
+struct EmptyTopicFilterView: View {
+    let topic: String
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Spacer()
+
+            ZStack {
+                Circle()
+                    .fill(DesignTokens.accent.opacity(0.1))
+                    .frame(width: 80, height: 80)
+
+                Image(systemName: "tag.slash")
+                    .font(.system(size: 32))
+                    .foregroundColor(DesignTokens.accent)
+            }
+
+            VStack(spacing: 6) {
+                Text("No \(topic) notes")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(DesignTokens.textPrimary)
+
+                Text("Notes with this topic will appear here once the AI analyzes them.")
+                    .font(.system(size: 14))
+                    .foregroundColor(DesignTokens.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+            }
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 

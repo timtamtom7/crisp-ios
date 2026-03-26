@@ -194,25 +194,58 @@ struct SettingsView: View {
                         // Recording settings
                         SettingsSection(title: "Recording") {
                             GlassCard {
-                                Toggle(isOn: Binding(
-                                    get: { appState.settings.autoSaveOnStop },
-                                    set: {
-                                        appState.settings.autoSaveOnStop = $0
-                                        appState.saveSettings()
-                                    }
-                                )) {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text("Auto-save on stop")
-                                            .font(.system(size: 15))
-                                            .foregroundColor(DesignTokens.textPrimary)
+                                VStack(spacing: 0) {
+                                    Toggle(isOn: Binding(
+                                        get: { appState.settings.autoSaveOnStop },
+                                        set: {
+                                            appState.settings.autoSaveOnStop = $0
+                                            appState.saveSettings()
+                                        }
+                                    )) {
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("Auto-save on stop")
+                                                .font(.system(size: 15))
+                                                .foregroundColor(DesignTokens.textPrimary)
 
-                                        Text("Automatically save when you stop recording")
-                                            .font(.system(size: 12))
-                                            .foregroundColor(DesignTokens.textSecondary)
+                                            Text("Automatically save when you stop recording")
+                                                .font(.system(size: 12))
+                                                .foregroundColor(DesignTokens.textSecondary)
+                                        }
                                     }
+                                    .tint(DesignTokens.accent)
+
+                                    Divider()
+                                        .background(DesignTokens.textSecondary.opacity(0.2))
+
+                                    HStack {
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("Recording quality")
+                                                .font(.system(size: 15))
+                                                .foregroundColor(DesignTokens.textPrimary)
+
+                                            Text("\(appState.settings.recordingQuality.displayName) · \(appState.settings.recordingQuality.bitrate)")
+                                                .font(.system(size: 12))
+                                                .foregroundColor(DesignTokens.textSecondary)
+                                        }
+
+                                        Spacer()
+
+                                        Picker("Quality", selection: Binding(
+                                            get: { appState.settings.recordingQuality },
+                                            set: { newQuality in
+                                                appState.settings.recordingQuality = newQuality
+                                                appState.saveSettings()
+                                            }
+                                        )) {
+                                            ForEach(RecordingQuality.allCases, id: \.self) { quality in
+                                                Text(quality.displayName).tag(quality)
+                                            }
+                                        }
+                                        .pickerStyle(.menu)
+                                        .tint(DesignTokens.accent)
+                                    }
+                                    .padding(16)
                                 }
-                                .tint(DesignTokens.accent)
-                                .padding(16)
                             }
                         }
 

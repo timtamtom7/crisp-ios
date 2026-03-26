@@ -327,7 +327,7 @@ struct NoteDetailView: View {
 
                 if editedNote.hasAISummary {
                     // Summary text
-                    Text(editedNote.aiSummary!)
+                    Text(editedNote.nonEmptySummary)
                         .font(.system(size: 15))
                         .foregroundColor(DesignTokens.textPrimary)
                         .multilineTextAlignment(.leading)
@@ -1590,28 +1590,30 @@ struct SplitRecordingSheet: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     // Waveform preview with split marker
-                    ZStack {
-                        // Waveform bars (simplified)
-                        HStack(spacing: 3) {
-                            ForEach(0..<30, id: \.self) { i in
-                                RoundedRectangle(cornerRadius: 2)
-                                    .fill(
-                                        Double(i) / 30.0 < splitProgress
-                                            ? DesignTokens.accent
-                                            : DesignTokens.textSecondary.opacity(0.4)
-                                    )
-                                    .frame(width: 6, height: CGFloat.random(in: 20...60))
+                    GeometryReader { geo in
+                        ZStack {
+                            // Waveform bars (simplified)
+                            HStack(spacing: 3) {
+                                ForEach(0..<30, id: \.self) { i in
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .fill(
+                                            Double(i) / 30.0 < splitProgress
+                                                ? DesignTokens.accent
+                                                : DesignTokens.textSecondary.opacity(0.4)
+                                        )
+                                        .frame(width: 6, height: CGFloat.random(in: 20...60))
+                                }
                             }
-                        }
-                        .padding(.horizontal, 16)
+                            .padding(.horizontal, 16)
 
-                        // Split divider
-                        Rectangle()
-                            .fill(DesignTokens.accent)
-                            .frame(width: 2)
-                            .offset(x: CGFloat(splitProgress - 0.5) * (UIScreen.main.bounds.width - 64))
+                            // Split divider
+                            Rectangle()
+                                .fill(DesignTokens.accent)
+                                .frame(width: 2)
+                                .offset(x: CGFloat(splitProgress - 0.5) * (geo.size.width - 64))
+                        }
+                        .frame(height: 80)
                     }
-                    .frame(height: 80)
                     .background(DesignTokens.surface)
                     .clipShape(RoundedRectangle(cornerRadius: DesignTokens.radiusMd))
 

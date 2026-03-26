@@ -20,7 +20,13 @@ struct VoiceNote: Identifiable, Equatable, Hashable, Codable {
     var speakingPace: Double?
     var folderSuggestion: String?
 
-    var hasAISummary: Bool { aiSummary != nil && !aiSummary!.isEmpty }
+    var hasAISummary: Bool { aiSummary != nil && !(aiSummary?.isEmpty ?? true) }
+
+    /// Returns the AI summary if non-nil and non-empty, otherwise an empty string.
+    var nonEmptySummary: String {
+        guard let summary = aiSummary, !summary.isEmpty else { return "" }
+        return summary
+    }
 
     init(
         id: UUID = UUID(),

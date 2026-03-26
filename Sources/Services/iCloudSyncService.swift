@@ -164,33 +164,29 @@ final class iCloudSyncService: ObservableObject, @unchecked Sendable {
             self.syncStatus = .syncing
         }
 
-        await MainActor.run {
-            Task {
-                let cloudNotes = await self.loadFromCloud()
-                guard let cloudNotes = cloudNotes else {
-                    await MainActor.run { self.syncStatus = .idle }
-                    return
-                }
+        let cloudNotes = await loadFromCloud()
+        guard let cloudNotes = cloudNotes else {
+            await MainActor.run { self.syncStatus = .idle }
+            return
+        }
 
-                do {
-                    let localNotes = try DatabaseService.shared.fetchAllNotes()
-                    if localNotes.count != cloudNotes.count {
-                        await MainActor.run {
-                            self.hasConflict = true
-                            self.syncStatus = .conflict
-                        }
-                    } else {
-                        await MainActor.run {
-                            self.syncStatus = .synced
-                            self.lastSyncDate = Date()
-                            self.saveLastSyncDate()
-                        }
-                    }
-                } catch {
-                    await MainActor.run {
-                        self.syncStatus = .error("Failed to check local notes: \(error.localizedDescription)")
-                    }
+        do {
+            let localNotes = try DatabaseService.shared.fetchAllNotes()
+            if localNotes.count != cloudNotes.count {
+                await MainActor.run {
+                    self.hasConflict = true
+                    self.syncStatus = .conflict
                 }
+            } else {
+                await MainActor.run {
+                    self.syncStatus = .synced
+                    self.lastSyncDate = Date()
+                    self.saveLastSyncDate()
+                }
+            }
+        } catch {
+            await MainActor.run {
+                self.syncStatus = .error("Failed to check local notes: \(error.localizedDescription)")
             }
         }
     }

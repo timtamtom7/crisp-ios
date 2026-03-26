@@ -17,7 +17,7 @@ final class SharingService: @unchecked Sendable {
     func shareAudio(note: VoiceNote) async throws -> URL {
         let sourceURL = note.audioFileURL
         let tempDir = FileManager.default.temporaryDirectory
-        let outputURL = tempDir.appendingPathComponent("\(note.title ?? "recording").m4a")
+        let outputURL = tempDir.appendingPathComponent("\(note.title).m4a")
 
         try? FileManager.default.removeItem(at: outputURL)
 
@@ -37,7 +37,7 @@ final class SharingService: @unchecked Sendable {
     func exportTranscriptAsText(note: VoiceNote, transcription: String) -> String {
         var text = ""
         text += "Crisp Recording\n"
-        text += "Title: \(note.title ?? "Untitled")\n"
+        text += "Title: \(note.title)\n"
         text += "Date: \(formatDate(note.createdAt))\n"
         text += "Duration: \(formatDuration(note.duration))\n"
         text += "\n---\n\n"

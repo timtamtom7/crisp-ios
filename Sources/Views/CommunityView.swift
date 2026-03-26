@@ -459,7 +459,7 @@ final class CommunityService: ObservableObject {
     func loadFeed() async {
         await MainActor.run { isLoading = true }
         // Load from local storage (in a real app, this would be from a server)
-        let items: [CommunityFeedItem] = (try? UserDefaults.standard.decode([CommunityFeedItem].self, forKey: feedKey)) ?? []
+        let items: [CommunityFeedItem] = UserDefaults.standard.decode([CommunityFeedItem].self, forKey: feedKey) ?? []
         await MainActor.run {
             feedItems = items.sorted { $0.upvotes > $1.upvotes }
             isLoading = false
@@ -475,7 +475,7 @@ final class CommunityService: ObservableObject {
 
     func loadMyShares() async {
         await MainActor.run {
-            myShares = (try? UserDefaults.standard.decode([CommunityFeedItem].self, forKey: mySharesKey)) ?? []
+            myShares = UserDefaults.standard.decode([CommunityFeedItem].self, forKey: mySharesKey) ?? []
         }
     }
 
@@ -493,7 +493,7 @@ final class CommunityService: ObservableObject {
         )
         await MainActor.run {
             myShares.insert(item, at: 0)
-            try? UserDefaults.standard.encode(myShares, forKey: mySharesKey)
+            UserDefaults.standard.encode(myShares, forKey: mySharesKey)
         }
     }
 
@@ -513,7 +513,7 @@ final class CommunityService: ObservableObject {
     func report(_ itemId: UUID) async {
         await MainActor.run {
             feedItems.removeAll { $0.id == itemId }
-            try? UserDefaults.standard.encode(feedItems, forKey: feedKey)
+            UserDefaults.standard.encode(feedItems, forKey: feedKey)
         }
     }
 }

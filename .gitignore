@@ -1,0 +1,12 @@
+# Build outputs
+build/
+*.xcuserstate
+*.xcworkspace
+xcuserdata/
+
+# macOS
+.DS_Store
+
+# SPM/Pods
+Packages/
+*.xcodeproj/project.xcworkspace

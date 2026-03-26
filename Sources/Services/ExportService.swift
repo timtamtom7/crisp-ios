@@ -173,7 +173,7 @@ final class ExportService {
                 var summaryAttrsWithParagraph = summaryAttrs
                 summaryAttrsWithParagraph[.paragraphStyle] = paragraphStyle
 
-                let summaryAttrString = NSAttributedString(string: note.aiSummary!, attributes: summaryAttrsWithParagraph)
+                let summaryAttrString = NSAttributedString(string: note.nonEmptySummary, attributes: summaryAttrsWithParagraph)
                 let summaryBounds = summaryAttrString.boundingRect(with: CGSize(width: contentWidth, height: .greatestFiniteMagnitude), options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
 
                 if yPosition + summaryBounds.height > pageHeight - margin {
@@ -261,7 +261,7 @@ final class ExportService {
 
             ──────────── AI SUMMARY ────────────
 
-            \(note.aiSummary!)
+            \(note.nonEmptySummary)
 
             """
 
@@ -348,7 +348,7 @@ final class ExportService {
             }
         }
 
-        if let error = error {
+        if error != nil {
             throw ExportError.zipCreationFailed
         }
 
@@ -360,6 +360,7 @@ final class ExportService {
 
     // MARK: - Share
 
+    @MainActor
     func sharePDF(for note: VoiceNote, from viewController: UIViewController) {
         do {
             let pdfData = try generatePDF(for: note)
@@ -376,6 +377,7 @@ final class ExportService {
         }
     }
 
+    @MainActor
     func sharePlainText(for note: VoiceNote, from viewController: UIViewController) {
         let text = generatePlainText(for: note)
         let activityVC = UIActivityViewController(

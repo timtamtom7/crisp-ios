@@ -378,7 +378,7 @@ struct CommunityShareSheet: View {
 
                                         if let topic = note.topic {
                                             Text(topic)
-                                                .font(.system(size: 10, weight: .semibold))
+                                                .font(.system(size: 11, weight: .semibold))
                                                 .foregroundColor(.white)
                                                 .padding(.horizontal, 6)
                                                 .padding(.vertical, 2)

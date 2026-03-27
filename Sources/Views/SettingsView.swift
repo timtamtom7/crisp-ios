@@ -65,6 +65,8 @@ struct SettingsView: View {
                                     if syncService.isCloudAvailable {
                                         HStack(spacing: 12) {
                                             Button {
+                                                // iOS 26: Medium haptic for sync action
+                                                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                                                 Task {
                                                     isSyncing = true
                                                     await syncService.sync()
@@ -93,6 +95,7 @@ struct SettingsView: View {
 
                                             if syncService.syncStatus == .conflict {
                                                 Button {
+                                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                                                     showConflictSheet = true
                                                 } label: {
                                                     HStack(spacing: 4) {
@@ -367,6 +370,8 @@ struct ConflictResolutionSheet: View {
 
                         VStack(spacing: 12) {
                             Button {
+                                // iOS 26: Warning haptic for conflict resolution
+                                UINotificationFeedbackGenerator().notificationOccurred(.warning)
                                 Task {
                                     await syncService.resolveConflictPreferLocal()
                                     dismiss()

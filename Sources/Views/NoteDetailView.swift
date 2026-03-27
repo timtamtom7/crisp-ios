@@ -905,6 +905,8 @@ struct AudioPlayerCard: View {
                     }
 
                     Button {
+                        // iOS 26: Medium haptic for play/pause toggle
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                         togglePlayback()
                     } label: {
                         ZStack {
@@ -917,6 +919,7 @@ struct AudioPlayerCard: View {
                                 .foregroundColor(DesignTokens.background)
                         }
                     }
+                    .accessibilityLabel(playerService.isPlaying ? "Pause playback" : "Play audio")
 
                     SkipButton(direction: .forward) {
                         playerService.skipForward()
@@ -981,7 +984,11 @@ struct AudioPlayerCard: View {
                 HStack {
                     Spacer()
 
-                    Button(action: onSpeedTap) {
+                    Button(action: {
+                        // iOS 26: Selection haptic for speed picker
+                        UISelectionFeedbackGenerator().selectionChanged()
+                        onSpeedTap()
+                    }) {
                         HStack(spacing: 6) {
                             Image(systemName: "speedometer")
                                 .font(.system(size: 13))
@@ -1051,7 +1058,11 @@ struct SkipButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            // iOS 26: Light haptic for skip interaction
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            action()
+        }) {
             ZStack {
                 Circle()
                     .fill(DesignTokens.surface)
@@ -1068,6 +1079,7 @@ struct SkipButton: View {
                 }
             }
         }
+        .accessibilityLabel(direction == .backward ? "Skip backward 15 seconds" : "Skip forward 15 seconds")
     }
 }
 
@@ -1160,6 +1172,7 @@ struct ActionButton: View {
             }
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(label)
     }
 }
 

@@ -7,7 +7,12 @@ struct RecordButton: View {
     @State private var isPulsing = false
 
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            // iOS 26: Haptic feedback on record button tap
+            let generator = UIImpactFeedbackGenerator(style: .heavy)
+            generator.impactOccurred()
+            action()
+        }) {
             ZStack {
                 // Outer ring
                 Circle()
